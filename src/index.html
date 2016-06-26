@@ -5,14 +5,11 @@
     <title> Homework #1</title>
   </head>
   <body>
-    <input type="file" id="file" name="file"/>
-
-    <canvas id="canvas1" width="100" height="100" style="display:none;">
+    <canvas id="canvas1" width="500" height="500" style="display:none;">
     </canvas>
+    <input type="file" id="file" name="file"/>
     <script>
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-      // Great success! All the File APIs are supported.
-    } else {
+    if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
       alert('The File APIs are not fully supported in this browser.');
     }
     </script>

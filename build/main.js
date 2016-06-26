@@ -253,7 +253,6 @@ function handleFileSelect(evt) {
         decodePalette(arrayBuffer);
         data = decodeImageData(arrayBuffer);
         console.log(bitmap);
-        horizontalFlip(data);
         drawOnCanvas(canvas, bitmap.current.data);
     };
     reader.readAsArrayBuffer(header);
@@ -357,6 +356,8 @@ function drawOnCanvas(canvas, data) {
     var width = bitmap.current.width;
     var height = bitmap.current.height;
     canvas.style.display = 'none';
+    var w = canvas.width;
+    var h = canvas.height;
     canvas.height = height;
     canvas.width = width;
     var ctx = canvas.getContext("2d");
@@ -365,12 +366,17 @@ function drawOnCanvas(canvas, data) {
     ctx.putImageData(imageData, 0, 0);
     var imageObject = new Image();
     imageObject.onload = function () {
-        var scale = 0.25;
-        canvas.height = height * scale;
-        canvas.width = width * scale;
+        var ratio = width / height;
+        var windowRatio = w / h;
+        var scale = w / width;
+        if (windowRatio > ratio) {
+            scale = h / height;
+        }
+        canvas.height = h;
+        canvas.width = w;
         ctx.clearRect(0, 0, width, height);
         ctx.scale(scale, scale);
-        ctx.drawImage(imageObject, 0, 0);
+        ctx.drawImage(imageObject, 0, height / 2 - height * scale / 2);
         canvas.style.display = 'block';
     };
     imageObject.src = canvas.toDataURL();

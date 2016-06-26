@@ -294,7 +294,7 @@ function handleFileSelect(evt: any) {
       data = decodeImageData(arrayBuffer);
 
       console.log(bitmap);
-      horizontalFlip(data);
+
 
       drawOnCanvas(canvas,bitmap.current.data);
     };
@@ -409,23 +409,31 @@ function horizontalFlip(data: Uint8ClampedArray) {
 
 
 function drawOnCanvas(canvas: any, data: Uint8ClampedArray){
+    /* scale and center image*/
     let width: number = bitmap.current.width;
     let height: number = bitmap.current.height;
     canvas.style.display = 'none';
+    var w = canvas.width;
+    var h = canvas.height;
     canvas.height = height;
     canvas.width = width;
-    let ctx: any = canvas.getContext("2d");
+    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
     let imageData: ImageData = ctx.createImageData(width, height);
     imageData.data.set(data);
     ctx.putImageData(imageData, 0, 0);
     var imageObject=new Image();
     imageObject.onload=function(){
-      let scale = 0.25;
-      canvas.height = height * scale;
-      canvas.width = width * scale;
+      var ratio = width/height;
+      var windowRatio = w/h;
+      var scale = w/width;
+      if (windowRatio > ratio) {
+        scale = h/height;
+      }
+      canvas.height = h;
+      canvas.width = w;
       ctx.clearRect(0,0,width,height);
       ctx.scale(scale,scale);
-      ctx.drawImage(imageObject,0,0);
+      ctx.drawImage(imageObject, 0, height/2 - height*scale/2);
       canvas.style.display = 'block';
 
     }
