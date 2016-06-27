@@ -49,6 +49,8 @@ RequireJS in needed to allow exports and import Bitmap module.
 ```html
 <script data-main="../../build/main.js" src="../../lib/require.js"></script>
 ```
+### Demo
+Visit [the github repository pages](https://testica.github.io/bitmap-ts/) to see a demo.
 
 ----
 **Leonardo Testa**
