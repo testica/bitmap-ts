@@ -118,7 +118,6 @@ export class Bitmap {
       this._bitmap.defaultData = this._bitmap.current.data = data;
       this._bitmap.current.width = this._bitmap.infoHeader.width;
       this._bitmap.current.height = this._bitmap.infoHeader.height;
-      //console.log(this._bitmap);
   }
 
   private decodeBit1(): Uint8ClampedArray {
@@ -300,17 +299,16 @@ export class Bitmap {
   }
 
   public negative() {
-    let data: Uint8ClampedArray = this.currentData();
-    for (let i: number = 0; i < (data.length / 4); i++) {
+
+    for (let i: number = 0; i < (this._bitmap.current.data.length / 4); i++) {
       let pos = i * 4;
-      data[pos] = 255 - data[pos];
-      data[pos + 1] = 255 - data[pos + 1];
-      data[pos + 2] = 255 - data[pos + 2];
+      this._bitmap.current.data[pos] = 255 - this._bitmap.current.data[pos];
+      this._bitmap.current.data[pos + 1] = 255 - this._bitmap.current.data[pos + 1];
+      this._bitmap.current.data[pos + 2] = 255 - this._bitmap.current.data[pos + 2];
     }
-    this._bitmap.current.data = data;
   }
 
-  private rotate90CW() {
+  public rotate90CW() {
     let data: Uint8ClampedArray = this.currentData();
     let width: number = this._bitmap.current.width;
     let height: number = this._bitmap.current.height;
@@ -331,18 +329,18 @@ export class Bitmap {
     this._bitmap.current.data = dataRotated;
   }
 
-  private rotate180() {
+  public rotate180() {
     this.rotate90CW();
     this.rotate90CW();
   }
 
-  private rotate270CW() {
+  public rotate270CW() {
     this.rotate90CW();
     this.rotate90CW();
     this.rotate90CW();
   }
 
-  private rotate90CCW() {
+  public rotate90CCW() {
     let data: Uint8ClampedArray = this.currentData();
     let width: number = this._bitmap.current.width;
     let height: number = this._bitmap.current.height;
@@ -363,13 +361,13 @@ export class Bitmap {
     this._bitmap.current.data = dataRotated;
   }
 
-  private rotate270CCW() {
+  public rotate270CCW() {
     this.rotate90CCW();
     this.rotate90CCW();
     this.rotate90CCW();
   }
 
-  private verticalFlip() {
+  public verticalFlip() {
     let data: Uint8ClampedArray = this.currentData();
     let width: number = this._bitmap.current.width;
     let height: number = this._bitmap.current.height;
@@ -388,7 +386,7 @@ export class Bitmap {
     this._bitmap.current.data = dataFliped;
   }
 
-  private horizontalFlip() {
+  public horizontalFlip() {
     let data: Uint8ClampedArray = this.currentData();
     let width: number = this._bitmap.current.width;
     let height: number = this._bitmap.current.height;
@@ -409,7 +407,6 @@ export class Bitmap {
 
   public drawOnCanvas(canvas: HTMLCanvasElement) {
       /* scale and center image*/
-      let data: Uint8ClampedArray = this.currentData();
       let width: number = this._bitmap.current.width;
       let height: number = this._bitmap.current.height;
       canvas.style.display = "none";
@@ -419,7 +416,7 @@ export class Bitmap {
       canvas.width = width;
       let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
       let imageData: ImageData = ctx.createImageData(width, height);
-      imageData.data.set(data);
+      imageData.data.set(this._bitmap.current.data);
       ctx.putImageData(imageData, 0, 0);
       let imageObject: any = new Image();
       imageObject.onload = () => {
@@ -433,7 +430,7 @@ export class Bitmap {
         canvas.width = w;
         ctx.clearRect(0, 0, width, height);
         ctx.scale(scale, scale);
-        ctx.drawImage(imageObject, 0, height / 2 - height * scale / 2);
+        ctx.drawImage(imageObject, 0, 0);
         canvas.style.display = "block";
       };
       imageObject.src = canvas.toDataURL();

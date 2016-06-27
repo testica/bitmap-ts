@@ -266,14 +266,12 @@ define(["require", "exports"], function (require, exports) {
             return this._bitmap.current.data ? true : false;
         };
         Bitmap.prototype.negative = function () {
-            var data = this.currentData();
-            for (var i = 0; i < (data.length / 4); i++) {
+            for (var i = 0; i < (this._bitmap.current.data.length / 4); i++) {
                 var pos = i * 4;
-                data[pos] = 255 - data[pos];
-                data[pos + 1] = 255 - data[pos + 1];
-                data[pos + 2] = 255 - data[pos + 2];
+                this._bitmap.current.data[pos] = 255 - this._bitmap.current.data[pos];
+                this._bitmap.current.data[pos + 1] = 255 - this._bitmap.current.data[pos + 1];
+                this._bitmap.current.data[pos + 2] = 255 - this._bitmap.current.data[pos + 2];
             }
-            this._bitmap.current.data = data;
         };
         Bitmap.prototype.rotate90CW = function () {
             var data = this.currentData();
@@ -366,7 +364,6 @@ define(["require", "exports"], function (require, exports) {
             this._bitmap.current.data = dataFliped;
         };
         Bitmap.prototype.drawOnCanvas = function (canvas) {
-            var data = this.currentData();
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
             canvas.style.display = "none";
@@ -376,7 +373,7 @@ define(["require", "exports"], function (require, exports) {
             canvas.width = width;
             var ctx = canvas.getContext("2d");
             var imageData = ctx.createImageData(width, height);
-            imageData.data.set(data);
+            imageData.data.set(this._bitmap.current.data);
             ctx.putImageData(imageData, 0, 0);
             var imageObject = new Image();
             imageObject.onload = function () {
@@ -390,7 +387,7 @@ define(["require", "exports"], function (require, exports) {
                 canvas.width = w;
                 ctx.clearRect(0, 0, width, height);
                 ctx.scale(scale, scale);
-                ctx.drawImage(imageObject, 0, height / 2 - height * scale / 2);
+                ctx.drawImage(imageObject, 0, 0);
                 canvas.style.display = "block";
             };
             imageObject.src = canvas.toDataURL();
