@@ -1,0 +1,12 @@
+canvas {
+  margin: 0 auto;
+}
+
+.center {
+  margin-top: 0.4em;
+  text-align: center;
+}
+
+#options {
+  display: none;
+}
