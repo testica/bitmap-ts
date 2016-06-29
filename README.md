@@ -1,6 +1,6 @@
 # bitmap-ts
-Typescript library to load/handle a bitmap file.
-Support 1,2,4,8,24 bpp
+[Typescript](https://www.typescriptlang.org/) library to load/handle a bitmap file.
+Support 1, 2, 4, 8, 16(no tested) and 24 bpp.
 The following functions are available:
 - read(File)
 - negative()
@@ -14,7 +14,12 @@ The following functions are available:
 - drawOnCanvas(canvas)
 
 ### How to use
-First, you need to import in your typescript file the library:
+I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.
+The same view is located on github repository page, [mentioned in the end of this markdown](#demo).
+
+To use the library in your own context, only need:
+
+Import in your typescript file the library:
 
 ```javascript
 import {Bitmap} from "./bitmap";
@@ -44,13 +49,14 @@ Also, is important to specify a size of you canvas:
 ```html
 <canvas id="canvas_id" width="500" height="500">
 ```
+**NOTE: Canvas can be very slow for big files, it is not the best solution to display a bmp file in HTML. Open a issue if found a faster solution.**
 ### Dependencies
 RequireJS in needed to allow exports and import Bitmap module.
 ```html
 <script data-main="../../build/main.js" src="../../lib/require.js"></script>
 ```
 ### Demo
-Visit [the github repository pages](https://testica.github.io/bitmap-ts/) to see a demo.
+Visit [the github repository page](https://testica.github.io/bitmap-ts/) to see a demo.
 
 ----
 **Leonardo Testa**
