@@ -26,6 +26,8 @@ export class Bitmap {
       this.decodeHeaderInfo(arrayBuffer);
       this.decodePalette(arrayBuffer);
       this.decodeImageData(arrayBuffer);
+      console.log(this._bitmap);
+
       callback(this);
     };
     reader.readAsArrayBuffer(this._file);
@@ -106,6 +108,10 @@ export class Bitmap {
           break;
         case 8:
           data = this.decodeBit8();
+          break;
+        case 16:
+          // no tested
+          data = this.decodeBit16();
           break;
         case 24:
           data = this.decodeBit24();
@@ -203,7 +209,10 @@ export class Bitmap {
          let b: number = bmpdata[pos++];
          let location: number = y * width * 4 + x * 2 * 4;
 
+         // Split 8 bits
+         // extract left 4-bits
          let before: number = b >> 4;
+         // extract right 4-bits
          let after: number = b & 0x0F;
 
          let rgb: RGBA = palette[before];
@@ -261,6 +270,39 @@ export class Bitmap {
       }
 
       return data;
+  }
+
+  private decodeBit16(): Uint8ClampedArray {
+    let width: number = this._bitmap.infoHeader.width;
+    let height: number = this._bitmap.infoHeader.height;
+    let bmpdata = this._bitmap.pixels;
+    let data: any = new Uint8ClampedArray(width * height * 4);
+    let pos: number = 0;
+    let palette: RGBA[] = this._bitmap.palette;
+    let mode: number = width % 4;
+    for (let y: number = height - 1; y >= 0; y--) {
+      for (let x: number = 0; x < width; x++) {
+        let b: number = (bmpdata[pos++] << 8) | bmpdata[pos++];
+        let location: number = y * width * 4 + x * 4;
+        if (b < palette.length) {
+          let rgb: RGBA = palette[b];
+          data[location] = rgb.r;
+          data[location + 1] = rgb.g;
+          data[location + 2] = rgb.b;
+          data[location + 3] = 0xFF;
+        } else {
+          data[location] = 0xFF;
+          data[location + 1] = 0xFF;
+          data[location + 2] = 0xFF;
+          data[location + 3] = 0xFF;
+        }
+      }
+      if (mode !== 0) {
+        pos += (4 - mode);
+      }
+    }
+
+    return data;
   }
 
   private decodeBit24(): Uint8ClampedArray {

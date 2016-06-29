@@ -20,6 +20,7 @@ define(["require", "exports"], function (require, exports) {
                 _this.decodeHeaderInfo(arrayBuffer);
                 _this.decodePalette(arrayBuffer);
                 _this.decodeImageData(arrayBuffer);
+                console.log(_this._bitmap);
                 callback(_this);
             };
             reader.readAsArrayBuffer(this._file);
@@ -90,6 +91,9 @@ define(["require", "exports"], function (require, exports) {
                     break;
                 case 8:
                     data = this.decodeBit8();
+                    break;
+                case 16:
+                    data = this.decodeBit16();
                     break;
                 case 24:
                     data = this.decodeBit24();
@@ -232,6 +236,38 @@ define(["require", "exports"], function (require, exports) {
             }
             return data;
         };
+        Bitmap.prototype.decodeBit16 = function () {
+            var width = this._bitmap.infoHeader.width;
+            var height = this._bitmap.infoHeader.height;
+            var bmpdata = this._bitmap.pixels;
+            var data = new Uint8ClampedArray(width * height * 4);
+            var pos = 0;
+            var palette = this._bitmap.palette;
+            var mode = width % 4;
+            for (var y = height - 1; y >= 0; y--) {
+                for (var x = 0; x < width; x++) {
+                    var b = (bmpdata[pos++] << 8) | bmpdata[pos++];
+                    var location_5 = y * width * 4 + x * 4;
+                    if (b < palette.length) {
+                        var rgb = palette[b];
+                        data[location_5] = rgb.r;
+                        data[location_5 + 1] = rgb.g;
+                        data[location_5 + 2] = rgb.b;
+                        data[location_5 + 3] = 0xFF;
+                    }
+                    else {
+                        data[location_5] = 0xFF;
+                        data[location_5 + 1] = 0xFF;
+                        data[location_5 + 2] = 0xFF;
+                        data[location_5 + 3] = 0xFF;
+                    }
+                }
+                if (mode !== 0) {
+                    pos += (4 - mode);
+                }
+            }
+            return data;
+        };
         Bitmap.prototype.decodeBit24 = function () {
             var width = this._bitmap.infoHeader.width;
             var height = this._bitmap.infoHeader.height;
@@ -244,11 +280,11 @@ define(["require", "exports"], function (require, exports) {
                     color.b = bmpdata[pos++];
                     color.g = bmpdata[pos++];
                     color.r = bmpdata[pos++];
-                    var location_5 = y * width * 4 + x * 4;
-                    data[location_5] = color.r;
-                    data[location_5 + 1] = color.g;
-                    data[location_5 + 2] = color.b;
-                    data[location_5 + 3] = 0xFF;
+                    var location_6 = y * width * 4 + x * 4;
+                    data[location_6] = color.r;
+                    data[location_6 + 1] = color.g;
+                    data[location_6 + 2] = color.b;
+                    data[location_6 + 3] = 0xFF;
                 }
                 pos += (width % 4);
             }
