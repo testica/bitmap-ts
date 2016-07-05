@@ -1,4 +1,4 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "./histogram"], function (require, exports, histogram_1) {
     "use strict";
     var RGBA = (function () {
         function RGBA() {
@@ -8,6 +8,7 @@ define(["require", "exports"], function (require, exports) {
     }());
     var Bitmap = (function () {
         function Bitmap(file) {
+            this._histogram = new histogram_1.Histogram();
             this._bitmap = {};
             this._file = file;
         }
@@ -126,6 +127,7 @@ define(["require", "exports"], function (require, exports) {
                             data[location_1 + i * 4 + 1] = rgb.g;
                             data[location_1 + i * 4 + 2] = rgb.b;
                             data[location_1 + i * 4 + 3] = 0xFF;
+                            this._histogram.fill(rgb.r, rgb.g, rgb.b);
                         }
                         else {
                             break;
@@ -158,6 +160,7 @@ define(["require", "exports"], function (require, exports) {
                             data[location_2 + i * 4 + 1] = rgb.g;
                             data[location_2 + i * 4 + 2] = rgb.b;
                             data[location_2 + i * 4 + 3] = 0xFF;
+                            this._histogram.fill(rgb.r, rgb.g, rgb.b);
                         }
                         else {
                             break;
@@ -190,6 +193,7 @@ define(["require", "exports"], function (require, exports) {
                     data[location_3 + 1] = rgb.g;
                     data[location_3 + 2] = rgb.b;
                     data[location_3 + 3] = 0xFF;
+                    this._histogram.fill(rgb.r, rgb.g, rgb.b);
                     if (x * 2 + 1 >= width)
                         break;
                     rgb = palette[after];
@@ -197,6 +201,7 @@ define(["require", "exports"], function (require, exports) {
                     data[location_3 + 4 + 1] = rgb.g;
                     data[location_3 + 4 + 2] = rgb.b;
                     data[location_3 + 4 + 3] = 0xFF;
+                    this._histogram.fill(rgb.r, rgb.g, rgb.b);
                 }
                 if (mode !== 0) {
                     pos += (4 - mode);
@@ -222,12 +227,14 @@ define(["require", "exports"], function (require, exports) {
                         data[location_4 + 1] = rgb.g;
                         data[location_4 + 2] = rgb.b;
                         data[location_4 + 3] = 0xFF;
+                        this._histogram.fill(rgb.r, rgb.g, rgb.b);
                     }
                     else {
                         data[location_4] = 0xFF;
                         data[location_4 + 1] = 0xFF;
                         data[location_4 + 2] = 0xFF;
                         data[location_4 + 3] = 0xFF;
+                        this._histogram.fill(255, 255, 255);
                     }
                 }
                 if (mode !== 0) {
@@ -254,12 +261,14 @@ define(["require", "exports"], function (require, exports) {
                         data[location_5 + 1] = rgb.g;
                         data[location_5 + 2] = rgb.b;
                         data[location_5 + 3] = 0xFF;
+                        this._histogram.fill(rgb.r, rgb.g, rgb.b);
                     }
                     else {
                         data[location_5] = 0xFF;
                         data[location_5 + 1] = 0xFF;
                         data[location_5 + 2] = 0xFF;
                         data[location_5 + 3] = 0xFF;
+                        this._histogram.fill(255, 255, 255);
                     }
                 }
                 if (mode !== 0) {
@@ -285,6 +294,7 @@ define(["require", "exports"], function (require, exports) {
                     data[location_6 + 1] = color.g;
                     data[location_6 + 2] = color.b;
                     data[location_6 + 3] = 0xFF;
+                    this._histogram.fill(color.r, color.g, color.b);
                 }
                 pos += (width % 4);
             }
@@ -398,6 +408,11 @@ define(["require", "exports"], function (require, exports) {
                 }
             }
             this._bitmap.current.data = dataFliped;
+        };
+        Bitmap.prototype.drawHistogram = function (canvas_r, canvas_g, canvas_b) {
+            this._histogram.draw_r(canvas_r);
+            this._histogram.draw_g(canvas_g);
+            this._histogram.draw_b(canvas_b);
         };
         Bitmap.prototype.drawOnCanvas = function (canvas) {
             var width = this._bitmap.current.width;

@@ -3,12 +3,16 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
     var file;
     var bmp;
     var canvas = document.getElementById("canvas1");
+    var histogram_r = document.getElementById("histogram_r");
+    var histogram_g = document.getElementById("histogram_g");
+    var histogram_b = document.getElementById("histogram_b");
     function handleFileSelect(evt) {
         file = evt.target.files[0];
         bmp = new bitmap_1.Bitmap(file);
         bmp.read(function (response) {
             document.getElementById("options").style.display = "block";
             bmp = response;
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b);
             bmp.drawOnCanvas(canvas);
         });
     }

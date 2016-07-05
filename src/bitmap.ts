@@ -1,3 +1,5 @@
+import {Histogram} from "./histogram";
+
 class RGBA {
   r: number;
   g: number;
@@ -12,8 +14,10 @@ export class Bitmap {
 
   private _bitmap;
   private _file;
+  private _histogram: Histogram;
 
   constructor(file: File) {
+    this._histogram = new Histogram();
     this._bitmap = {};
     this._file = file;
   }
@@ -146,6 +150,7 @@ export class Bitmap {
               data[location + i * 4 + 1] = rgb.g;
               data[location + i * 4 + 2] = rgb.b;
               data[location + i * 4 + 3] = 0xFF;
+              this._histogram.fill(rgb.r, rgb.g, rgb.b);
             } else {
               break;
             }
@@ -181,6 +186,7 @@ export class Bitmap {
               data[location + i * 4 + 1] = rgb.g;
               data[location + i * 4 + 2] = rgb.b;
               data[location + i * 4 + 3] = 0xFF;
+              this._histogram.fill(rgb.r, rgb.g, rgb.b);
             } else {
               break;
             }
@@ -220,6 +226,7 @@ export class Bitmap {
          data[location + 1] = rgb.g;
          data[location + 2] = rgb.b;
          data[location + 3] = 0xFF;
+         this._histogram.fill(rgb.r, rgb.g, rgb.b);
 
          if (x * 2 + 1 >= width) break;
 
@@ -228,6 +235,7 @@ export class Bitmap {
          data[location + 4 + 1] = rgb.g;
          data[location + 4 + 2] = rgb.b;
          data[location + 4 + 3] = 0xFF;
+         this._histogram.fill(rgb.r, rgb.g, rgb.b);
        }
 
        if (mode !== 0) {
@@ -257,11 +265,13 @@ export class Bitmap {
             data[location + 1] = rgb.g;
             data[location + 2] = rgb.b;
             data[location + 3] = 0xFF;
+            this._histogram.fill(rgb.r, rgb.g, rgb.b);
           } else {
             data[location] = 0xFF;
             data[location + 1] = 0xFF;
             data[location + 2] = 0xFF;
             data[location + 3] = 0xFF;
+            this._histogram.fill(255, 255, 255);
           }
         }
         if (mode !== 0) {
@@ -290,11 +300,13 @@ export class Bitmap {
           data[location + 1] = rgb.g;
           data[location + 2] = rgb.b;
           data[location + 3] = 0xFF;
+          this._histogram.fill(rgb.r, rgb.g, rgb.b);
         } else {
           data[location] = 0xFF;
           data[location + 1] = 0xFF;
           data[location + 2] = 0xFF;
           data[location + 3] = 0xFF;
+          this._histogram.fill(255, 255, 255);
         }
       }
       if (mode !== 0) {
@@ -322,6 +334,7 @@ export class Bitmap {
             data[location + 1] = color.g;
             data[location + 2] = color.b;
             data[location + 3] = 0xFF;
+            this._histogram.fill(color.r, color.g, color.b);
           }
           pos += (width % 4);
         }
@@ -445,6 +458,12 @@ export class Bitmap {
       }
     }
     this._bitmap.current.data = dataFliped;
+  }
+
+  public drawHistogram(canvas_r: HTMLCanvasElement, canvas_g: HTMLCanvasElement, canvas_b: HTMLCanvasElement) {
+    this._histogram.draw_r(canvas_r);
+    this._histogram.draw_g(canvas_g);
+    this._histogram.draw_b(canvas_b);
   }
 
   public drawOnCanvas(canvas: HTMLCanvasElement) {
