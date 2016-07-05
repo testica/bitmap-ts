@@ -7,6 +7,7 @@ let canvas: any = document.getElementById("canvas1");
 let histogram_r: any = document.getElementById("histogram_r");
 let histogram_g: any = document.getElementById("histogram_g");
 let histogram_b: any = document.getElementById("histogram_b");
+let histogram_avg: any = document.getElementById("histogram_avg");
 
 function handleFileSelect(evt: any) {
     file = evt.target.files[0];
@@ -14,7 +15,7 @@ function handleFileSelect(evt: any) {
     bmp.read((response: Bitmap) => {
       document.getElementById("options").style.display = "block";
       bmp = response;
-      bmp.drawHistogram(histogram_r, histogram_g, histogram_b);
+      bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
       bmp.drawOnCanvas(canvas);
 
     });
@@ -27,6 +28,7 @@ document.getElementById("file").addEventListener("change", handleFileSelect, fal
 // Negative
 document.getElementById("negative").addEventListener("click", () => {
   bmp.negative();
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
 // Rotate 90 CW

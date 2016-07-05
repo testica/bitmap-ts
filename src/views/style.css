@@ -11,7 +11,7 @@ canvas {
   display: none;
 }
 
-#histogram_r, #histogram_g, #histogram_b {
+#histogram_r, #histogram_g, #histogram_b,#histogram_avg {
   display: block;
   padding: 1px;
   border: 1px solid;

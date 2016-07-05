@@ -11,6 +11,11 @@ define(["require", "exports"], function (require, exports) {
             }
         }
         Histogram.prototype.fillAll = function (imageData) {
+            for (var i = 0; i < imageData.length; i += 4) {
+                this._histogram_r[imageData[i]]++;
+                this._histogram_g[imageData[i + 1]]++;
+                this._histogram_b[imageData[i + 2]]++;
+            }
         };
         Histogram.prototype.fill = function (r, g, b) {
             this._histogram_r[r]++;
@@ -20,6 +25,7 @@ define(["require", "exports"], function (require, exports) {
         Histogram.prototype.draw_r = function (canvas) {
             var max = Math.max.apply(null, this._histogram_r);
             var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "rgb(255,0,0)";
             for (var i = 0; i < 256; i++) {
                 var pct = (this._histogram_r[i] / max) * 100;
@@ -29,6 +35,7 @@ define(["require", "exports"], function (require, exports) {
         Histogram.prototype.draw_g = function (canvas) {
             var max = Math.max.apply(null, this._histogram_g);
             var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "rgb(0,255,0)";
             for (var i = 0; i < 256; i++) {
                 var pct = (this._histogram_g[i] / max) * 100;
@@ -38,9 +45,24 @@ define(["require", "exports"], function (require, exports) {
         Histogram.prototype.draw_b = function (canvas) {
             var max = Math.max.apply(null, this._histogram_b);
             var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "rgb(0,0,255)";
             for (var i = 0; i < 256; i++) {
                 var pct = (this._histogram_b[i] / max) * 100;
+                ctx.fillRect(i, 100, 1, -Math.round(pct));
+            }
+        };
+        Histogram.prototype.draw_avg = function (canvas) {
+            var rmax = Math.max.apply(null, this._histogram_r);
+            var gmax = Math.max.apply(null, this._histogram_g);
+            var bmax = Math.max.apply(null, this._histogram_b);
+            var max = Math.max.apply(null, [rmax, gmax, bmax]);
+            var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgb(0,0,0)";
+            for (var i = 0; i < 256; i++) {
+                var prom = (this._histogram_r[i] + this._histogram_g[i] + this._histogram_b[i]) / 3;
+                var pct = (prom / max) * 100;
                 ctx.fillRect(i, 100, 1, -Math.round(pct));
             }
         };

@@ -8,6 +8,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
     }());
     var Bitmap = (function () {
         function Bitmap(file) {
+            this._grayScale = false;
             this._histogram = new histogram_1.Histogram();
             this._bitmap = {};
             this._file = file;
@@ -58,6 +59,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
         Bitmap.prototype.decodePalette = function (buffer) {
             var colors = 0;
             if (this._bitmap.infoHeader.bitsPerPixel <= 8) {
+                this._grayScale = true;
                 if ((colors = this._bitmap.infoHeader.numberColors) === 0) {
                     colors = Math.pow(2, this._bitmap.infoHeader.bitsPerPixel);
                     this._bitmap.infoHeader.numberColors = colors;
@@ -71,6 +73,8 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     color.g = palette.getUint8(offset++);
                     color.r = palette.getUint8(offset++);
                     color.a = palette.getUint8(offset++);
+                    if (this._grayScale)
+                        this._grayScale = this.isGrayScale(color);
                     this._bitmap.palette.push(color);
                 }
             }
@@ -312,12 +316,14 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             return this._bitmap.current.data ? true : false;
         };
         Bitmap.prototype.negative = function () {
+            this._histogram = new histogram_1.Histogram();
             for (var i = 0; i < (this._bitmap.current.data.length / 4); i++) {
                 var pos = i * 4;
                 this._bitmap.current.data[pos] = 255 - this._bitmap.current.data[pos];
                 this._bitmap.current.data[pos + 1] = 255 - this._bitmap.current.data[pos + 1];
                 this._bitmap.current.data[pos + 2] = 255 - this._bitmap.current.data[pos + 2];
             }
+            this._histogram.fillAll(this._bitmap.current.data);
         };
         Bitmap.prototype.rotate90CW = function () {
             var data = this.currentData();
@@ -409,10 +415,28 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             }
             this._bitmap.current.data = dataFliped;
         };
-        Bitmap.prototype.drawHistogram = function (canvas_r, canvas_g, canvas_b) {
-            this._histogram.draw_r(canvas_r);
-            this._histogram.draw_g(canvas_g);
-            this._histogram.draw_b(canvas_b);
+        Bitmap.prototype.isGrayScale = function (color) {
+            if ((color.r === color.g) && (color.r === color.b)) {
+                return true;
+            }
+        };
+        Bitmap.prototype.drawHistogram = function (canvas_r, canvas_g, canvas_b, canvas_avg) {
+            if (!this._grayScale) {
+                canvas_avg.style.display = "none";
+                canvas_r.style.display = "block";
+                canvas_g.style.display = "block";
+                canvas_b.style.display = "block";
+                this._histogram.draw_r(canvas_r);
+                this._histogram.draw_g(canvas_g);
+                this._histogram.draw_b(canvas_b);
+            }
+            else {
+                canvas_avg.style.display = "block";
+                canvas_r.style.display = "none";
+                canvas_g.style.display = "none";
+                canvas_b.style.display = "none";
+                this._histogram.draw_avg(canvas_avg);
+            }
         };
         Bitmap.prototype.drawOnCanvas = function (canvas) {
             var width = this._bitmap.current.width;
