@@ -12,6 +12,7 @@ The following functions are available:
 - horizontalFlip()
 - verticalFlip()
 - drawOnCanvas(canvas)
+- drawHistogram(canvas_r, canvas_g, canvas_b, canvas_avg)
 
 ### How to use
 I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.
@@ -50,6 +51,9 @@ Also, is important to specify a size of you canvas:
 <canvas id="canvas_id" width="500" height="500">
 ```
 **NOTE: Canvas can be very slow for big files, it is not the best solution to display a bmp file in HTML. Open a issue if found a faster solution.**
+
+##### Drawing Histogram:
+Now is possible draw image's histogram, for the moments you have to pass 4 canvas, the first three are for RED, GREEN and BLUE. The last is the average between 3 channels (R, G, B). If the image is grayscale type, only average histogram will be shown. If is the image has color, R,G,B histograms will be shown.
 ### Dependencies
 RequireJS in needed to allow exports and import Bitmap module.
 ```html
