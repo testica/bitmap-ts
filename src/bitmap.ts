@@ -1,3 +1,5 @@
+import {Histogram} from "./histogram";
+
 class RGBA {
   r: number;
   g: number;
@@ -12,8 +14,11 @@ export class Bitmap {
 
   private _bitmap;
   private _file;
+  private _histogram: Histogram;
+  private _grayScale = false;
 
   constructor(file: File) {
+    this._histogram = new Histogram();
     this._bitmap = {};
     this._file = file;
   }
@@ -71,6 +76,7 @@ export class Bitmap {
       // Check if has palette
       if (this._bitmap.infoHeader.bitsPerPixel <= 8) {
         // has palette
+        this._grayScale = true;
         if ((colors = this._bitmap.infoHeader.numberColors) === 0) {
           colors = Math.pow(2, this._bitmap.infoHeader.bitsPerPixel);
           this._bitmap.infoHeader.numberColors = colors;
@@ -85,6 +91,8 @@ export class Bitmap {
           color.g = palette.getUint8(offset++);
           color.r = palette.getUint8(offset++);
           color.a = palette.getUint8(offset++);
+          if (this._grayScale)
+            this._grayScale = this.isGrayScale(color);
           this._bitmap.palette.push(color);
         }
       }
@@ -146,6 +154,7 @@ export class Bitmap {
               data[location + i * 4 + 1] = rgb.g;
               data[location + i * 4 + 2] = rgb.b;
               data[location + i * 4 + 3] = 0xFF;
+              this._histogram.fill(rgb.r, rgb.g, rgb.b);
             } else {
               break;
             }
@@ -181,6 +190,7 @@ export class Bitmap {
               data[location + i * 4 + 1] = rgb.g;
               data[location + i * 4 + 2] = rgb.b;
               data[location + i * 4 + 3] = 0xFF;
+              this._histogram.fill(rgb.r, rgb.g, rgb.b);
             } else {
               break;
             }
@@ -220,6 +230,7 @@ export class Bitmap {
          data[location + 1] = rgb.g;
          data[location + 2] = rgb.b;
          data[location + 3] = 0xFF;
+         this._histogram.fill(rgb.r, rgb.g, rgb.b);
 
          if (x * 2 + 1 >= width) break;
 
@@ -228,6 +239,7 @@ export class Bitmap {
          data[location + 4 + 1] = rgb.g;
          data[location + 4 + 2] = rgb.b;
          data[location + 4 + 3] = 0xFF;
+         this._histogram.fill(rgb.r, rgb.g, rgb.b);
        }
 
        if (mode !== 0) {
@@ -257,11 +269,13 @@ export class Bitmap {
             data[location + 1] = rgb.g;
             data[location + 2] = rgb.b;
             data[location + 3] = 0xFF;
+            this._histogram.fill(rgb.r, rgb.g, rgb.b);
           } else {
             data[location] = 0xFF;
             data[location + 1] = 0xFF;
             data[location + 2] = 0xFF;
             data[location + 3] = 0xFF;
+            this._histogram.fill(255, 255, 255);
           }
         }
         if (mode !== 0) {
@@ -290,11 +304,13 @@ export class Bitmap {
           data[location + 1] = rgb.g;
           data[location + 2] = rgb.b;
           data[location + 3] = 0xFF;
+          this._histogram.fill(rgb.r, rgb.g, rgb.b);
         } else {
           data[location] = 0xFF;
           data[location + 1] = 0xFF;
           data[location + 2] = 0xFF;
           data[location + 3] = 0xFF;
+          this._histogram.fill(255, 255, 255);
         }
       }
       if (mode !== 0) {
@@ -322,6 +338,7 @@ export class Bitmap {
             data[location + 1] = color.g;
             data[location + 2] = color.b;
             data[location + 3] = 0xFF;
+            this._histogram.fill(color.r, color.g, color.b);
           }
           pos += (width % 4);
         }
@@ -341,13 +358,14 @@ export class Bitmap {
   }
 
   public negative() {
-
+    this._histogram = new Histogram();
     for (let i: number = 0; i < (this._bitmap.current.data.length / 4); i++) {
       let pos = i * 4;
       this._bitmap.current.data[pos] = 255 - this._bitmap.current.data[pos];
       this._bitmap.current.data[pos + 1] = 255 - this._bitmap.current.data[pos + 1];
       this._bitmap.current.data[pos + 2] = 255 - this._bitmap.current.data[pos + 2];
     }
+    this._histogram.fillAll(this._bitmap.current.data);
   }
 
   public rotate90CW() {
@@ -445,6 +463,30 @@ export class Bitmap {
       }
     }
     this._bitmap.current.data = dataFliped;
+  }
+
+  private isGrayScale(color: RGBA) {
+    if ((color.r === color.g) && (color.r === color.b)) {
+      return true;
+    }
+  }
+
+  public drawHistogram(canvas_r: HTMLCanvasElement, canvas_g: HTMLCanvasElement, canvas_b: HTMLCanvasElement, canvas_avg: HTMLCanvasElement) {
+    if (!this._grayScale) {
+      canvas_avg.style.display = "none";
+      canvas_r.style.display = "block";
+      canvas_g.style.display = "block";
+      canvas_b.style.display = "block";
+      this._histogram.draw_r(canvas_r);
+      this._histogram.draw_g(canvas_g);
+      this._histogram.draw_b(canvas_b);
+    } else {
+      canvas_avg.style.display = "block";
+      canvas_r.style.display = "none";
+      canvas_g.style.display = "none";
+      canvas_b.style.display = "none";
+      this._histogram.draw_avg(canvas_avg);
+    }
   }
 
   public drawOnCanvas(canvas: HTMLCanvasElement) {
