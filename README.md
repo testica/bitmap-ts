@@ -13,6 +13,7 @@ The following functions are available:
 - verticalFlip()
 - drawOnCanvas(canvas)
 - drawHistogram(canvas_r, canvas_g, canvas_b, canvas_avg)
+- brightness(value)
 
 ### How to use
 I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.

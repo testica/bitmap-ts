@@ -66,3 +66,10 @@ document.getElementById("verticalFlip").addEventListener("click", () => {
   bmp.verticalFlip();
   bmp.drawOnCanvas(canvas);
 });
+// Vertical Flip
+document.getElementById("brightnessBtn").addEventListener("click", () => {
+  let value: number = + (<HTMLInputElement>document.getElementById("brightness")).value;
+  bmp.brightness(value);
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+  bmp.drawOnCanvas(canvas);
+});

@@ -107,7 +107,8 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     throw ("Not supported");
             }
             this._bitmap.current = {};
-            this._bitmap.defaultData = this._bitmap.current.data = data;
+            this._bitmap.defaultData = new Uint8ClampedArray(data);
+            this._bitmap.current.data = new Uint8ClampedArray(data);
             this._bitmap.current.width = this._bitmap.infoHeader.width;
             this._bitmap.current.height = this._bitmap.infoHeader.height;
         };
@@ -414,6 +415,25 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 }
             }
             this._bitmap.current.data = dataFliped;
+        };
+        Bitmap.prototype.clamp255 = function (current, increment) {
+            var newValue = current + increment;
+            return (newValue > 255) ? 255 : newValue;
+        };
+        Bitmap.prototype.brightness = function (value) {
+            if (value > 255)
+                value = 255;
+            if (value < 0)
+                value = 0;
+            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            this._histogram = new histogram_1.Histogram();
+            for (var i = 0; i < data.length; i += 4) {
+                data[i] = this.clamp255(data[i], value);
+                data[i + 1] = this.clamp255(data[i + 1], value);
+                data[i + 2] = this.clamp255(data[i + 2], value);
+            }
+            this._histogram.fillAll(data);
+            this._bitmap.current.data = data;
         };
         Bitmap.prototype.isGrayScale = function (color) {
             if ((color.r === color.g) && (color.r === color.b)) {
