@@ -461,6 +461,12 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 return true;
             }
         };
+        Bitmap.prototype.drawProperties = function (properties) {
+            properties[0].innerHTML = this._bitmap.infoHeader.width;
+            properties[1].innerHTML = this._bitmap.infoHeader.height;
+            properties[2].innerHTML = this._bitmap.infoHeader.bitsPerPixel;
+            properties[3].innerHTML = (this._bitmap.header.size / (1024 * 1024));
+        };
         Bitmap.prototype.drawHistogram = function (canvas_r, canvas_g, canvas_b, canvas_avg) {
             if (!this._grayScale) {
                 canvas_avg.style.display = "none";

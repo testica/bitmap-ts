@@ -3,6 +3,7 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
     var file;
     var bmp;
     var canvas = document.getElementById("canvas1");
+    var properties;
     var histogram_r = document.getElementById("histogram_r");
     var histogram_g = document.getElementById("histogram_g");
     var histogram_b = document.getElementById("histogram_b");
@@ -13,6 +14,13 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.read(function (response) {
             document.getElementById("options").style.display = "block";
             bmp = response;
+            properties = [
+                document.getElementById("width"),
+                document.getElementById("height"),
+                document.getElementById("bitsDepth"),
+                document.getElementById("size")
+            ];
+            bmp.drawProperties(properties);
             bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas);
         });
