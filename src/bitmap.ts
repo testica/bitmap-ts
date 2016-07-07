@@ -467,11 +467,10 @@ export class Bitmap {
     this._bitmap.current.data = dataFliped;
   }
 
-  private truncate(current: number, increment: number): number {
-    let newValue: number = current + increment;
-    if (newValue < 0) newValue = 0;
-    if (newValue > 255) newValue = 255;
-    return newValue;
+  private truncate(value: number): number {
+    if (value < 0) value = 0;
+    if (value > 255) value = 255;
+    return value;
   }
 
   public brightness(value: number) {
@@ -481,9 +480,25 @@ export class Bitmap {
     let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
     this._histogram = new Histogram();
     for (let i: number = 0; i < data.length; i += 4) {
-      data[i] = this.truncate(data[i], value);
-      data[i + 1] = this.truncate(data[i + 1], value);
-      data[i + 2] = this.truncate(data[i + 2], value);
+      data[i] = this.truncate(data[i] + value);
+      data[i + 1] = this.truncate(data[i + 1] + value);
+      data[i + 2] = this.truncate(data[i + 2] + value);
+    }
+    this._histogram.fillAll(data);
+    this._bitmap.current.data = data;
+  }
+
+  public contrast(value: number) {
+    value = Math.round(value);
+    if (value > 255) value = 255;
+    if (value < -255) value = -255;
+    let fc: number = (259 * (value + 255)) / (255 * (259 - value));
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    this._histogram = new Histogram();
+    for (let i: number = 0; i < data.length; i += 4) {
+      data[i] = this.truncate(fc * (data[i] - 128) + 128);
+      data[i + 1] = this.truncate(fc * (data[i + 1] - 128) + 128);
+      data[i + 2] = this.truncate(fc * (data[i + 2] - 128) + 128);
     }
     this._histogram.fillAll(data);
     this._bitmap.current.data = data;

@@ -66,10 +66,17 @@ document.getElementById("verticalFlip").addEventListener("click", () => {
   bmp.verticalFlip();
   bmp.drawOnCanvas(canvas);
 });
-// Vertical Flip
+// Brightness
 document.getElementById("brightnessBtn").addEventListener("click", () => {
   let value: number = + (<HTMLInputElement>document.getElementById("brightness")).value;
   bmp.brightness(value);
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+  bmp.drawOnCanvas(canvas);
+});
+// contrast
+document.getElementById("contrastBtn").addEventListener("click", () => {
+  let value: number = + (<HTMLInputElement>document.getElementById("contrast")).value;
+  bmp.contrast(value);
   bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
