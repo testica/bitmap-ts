@@ -467,20 +467,23 @@ export class Bitmap {
     this._bitmap.current.data = dataFliped;
   }
 
-  private clamp255(current: number, increment: number): number {
+  private truncate(current: number, increment: number): number {
     let newValue: number = current + increment;
-    return (newValue > 255) ? 255 : newValue;
+    if (newValue < 0) newValue = 0;
+    if (newValue > 255) newValue = 255;
+    return newValue;
   }
 
   public brightness(value: number) {
+    value = Math.round(value);
     if (value > 255) value = 255;
-    if (value < 0 ) value = 0;
+    if (value < -255) value = -255;
     let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
     this._histogram = new Histogram();
     for (let i: number = 0; i < data.length; i += 4) {
-      data[i] = this.clamp255(data[i], value);
-      data[i + 1] = this.clamp255(data[i + 1], value);
-      data[i + 2] = this.clamp255(data[i + 2], value);
+      data[i] = this.truncate(data[i], value);
+      data[i + 1] = this.truncate(data[i + 1], value);
+      data[i + 2] = this.truncate(data[i + 2], value);
     }
     this._histogram.fillAll(data);
     this._bitmap.current.data = data;
