@@ -59,4 +59,16 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.verticalFlip();
         bmp.drawOnCanvas(canvas);
     });
+    document.getElementById("brightnessBtn").addEventListener("click", function () {
+        var value = +document.getElementById("brightness").value;
+        bmp.brightness(value);
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+        bmp.drawOnCanvas(canvas);
+    });
+    document.getElementById("contrastBtn").addEventListener("click", function () {
+        var value = +document.getElementById("contrast").value;
+        bmp.contrast(value);
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+        bmp.drawOnCanvas(canvas);
+    });
 });

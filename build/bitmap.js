@@ -107,7 +107,8 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     throw ("Not supported");
             }
             this._bitmap.current = {};
-            this._bitmap.defaultData = this._bitmap.current.data = data;
+            this._bitmap.defaultData = new Uint8ClampedArray(data);
+            this._bitmap.current.data = new Uint8ClampedArray(data);
             this._bitmap.current.width = this._bitmap.infoHeader.width;
             this._bitmap.current.height = this._bitmap.infoHeader.height;
         };
@@ -414,6 +415,46 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 }
             }
             this._bitmap.current.data = dataFliped;
+        };
+        Bitmap.prototype.truncate = function (value) {
+            if (value < 0)
+                value = 0;
+            if (value > 255)
+                value = 255;
+            return value;
+        };
+        Bitmap.prototype.brightness = function (value) {
+            value = Math.round(value);
+            if (value > 255)
+                value = 255;
+            if (value < -255)
+                value = -255;
+            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            this._histogram = new histogram_1.Histogram();
+            for (var i = 0; i < data.length; i += 4) {
+                data[i] = this.truncate(data[i] + value);
+                data[i + 1] = this.truncate(data[i + 1] + value);
+                data[i + 2] = this.truncate(data[i + 2] + value);
+            }
+            this._histogram.fillAll(data);
+            this._bitmap.current.data = data;
+        };
+        Bitmap.prototype.contrast = function (value) {
+            value = Math.round(value);
+            if (value > 255)
+                value = 255;
+            if (value < -255)
+                value = -255;
+            var fc = (259 * (value + 255)) / (255 * (259 - value));
+            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            this._histogram = new histogram_1.Histogram();
+            for (var i = 0; i < data.length; i += 4) {
+                data[i] = this.truncate(fc * (data[i] - 128) + 128);
+                data[i + 1] = this.truncate(fc * (data[i + 1] - 128) + 128);
+                data[i + 2] = this.truncate(fc * (data[i + 2] - 128) + 128);
+            }
+            this._histogram.fillAll(data);
+            this._bitmap.current.data = data;
         };
         Bitmap.prototype.isGrayScale = function (color) {
             if ((color.r === color.g) && (color.r === color.b)) {

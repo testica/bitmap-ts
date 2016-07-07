@@ -14,6 +14,7 @@ export class Bitmap {
 
   private _bitmap;
   private _file;
+  private _defaultData: any;
   private _histogram: Histogram;
   private _grayScale = false;
 
@@ -103,7 +104,7 @@ export class Bitmap {
       this._bitmap.rowSize = Math.floor((this._bitmap.infoHeader.bitsPerPixel * this._bitmap.infoHeader.width + 31) / 32) * 4;
       this._bitmap.pixelArraySize = this._bitmap.rowSize * Math.abs(this._bitmap.infoHeader.height);
       this._bitmap.pixels = new Uint8Array(buffer, this._bitmap.header.offset);
-      let data;
+      let data: Uint8ClampedArray;
       switch (this._bitmap.infoHeader.bitsPerPixel) {
         case 1:
           data = this.decodeBit1();
@@ -129,7 +130,8 @@ export class Bitmap {
       }
 
       this._bitmap.current = {};
-      this._bitmap.defaultData = this._bitmap.current.data = data;
+      this._bitmap.defaultData = new Uint8ClampedArray(data);
+      this._bitmap.current.data = new Uint8ClampedArray(data);
       this._bitmap.current.width = this._bitmap.infoHeader.width;
       this._bitmap.current.height = this._bitmap.infoHeader.height;
   }
@@ -463,6 +465,43 @@ export class Bitmap {
       }
     }
     this._bitmap.current.data = dataFliped;
+  }
+
+  private truncate(value: number): number {
+    if (value < 0) value = 0;
+    if (value > 255) value = 255;
+    return value;
+  }
+
+  public brightness(value: number) {
+    value = Math.round(value);
+    if (value > 255) value = 255;
+    if (value < -255) value = -255;
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    this._histogram = new Histogram();
+    for (let i: number = 0; i < data.length; i += 4) {
+      data[i] = this.truncate(data[i] + value);
+      data[i + 1] = this.truncate(data[i + 1] + value);
+      data[i + 2] = this.truncate(data[i + 2] + value);
+    }
+    this._histogram.fillAll(data);
+    this._bitmap.current.data = data;
+  }
+
+  public contrast(value: number) {
+    value = Math.round(value);
+    if (value > 255) value = 255;
+    if (value < -255) value = -255;
+    let fc: number = (259 * (value + 255)) / (255 * (259 - value));
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    this._histogram = new Histogram();
+    for (let i: number = 0; i < data.length; i += 4) {
+      data[i] = this.truncate(fc * (data[i] - 128) + 128);
+      data[i + 1] = this.truncate(fc * (data[i + 1] - 128) + 128);
+      data[i + 2] = this.truncate(fc * (data[i + 2] - 128) + 128);
+    }
+    this._histogram.fillAll(data);
+    this._bitmap.current.data = data;
   }
 
   private isGrayScale(color: RGBA) {
