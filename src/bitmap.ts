@@ -471,12 +471,11 @@ export class Bitmap {
     }
   }
 
-  public drawProperties(properties: [HTMLElement,HTMLElement,HTMLElement,HTMLElement]){
-
+  public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
     properties[0].innerHTML = this._bitmap.infoHeader.width;
     properties[1].innerHTML = this._bitmap.infoHeader.height;
     properties[2].innerHTML = this._bitmap.infoHeader.bitsPerPixel;
-    properties[3].innerHTML = <string><any>(this._bitmap.header.size/(1024*1024));
+    properties[3].innerHTML = <string><any>(this._bitmap.header.size / (1024 * 1024));
   }
 
   public drawHistogram(canvas_r: HTMLCanvasElement, canvas_g: HTMLCanvasElement, canvas_b: HTMLCanvasElement, canvas_avg: HTMLCanvasElement) {
