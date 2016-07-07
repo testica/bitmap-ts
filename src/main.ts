@@ -4,6 +4,7 @@ import {Bitmap} from "./bitmap";
 let file: File;
 let bmp: Bitmap;
 let canvas: any = document.getElementById("canvas1");
+let properties: [HTMLElement,HTMLElement,HTMLElement,HTMLElement];
 let histogram_r: any = document.getElementById("histogram_r");
 let histogram_g: any = document.getElementById("histogram_g");
 let histogram_b: any = document.getElementById("histogram_b");
@@ -15,6 +16,8 @@ function handleFileSelect(evt: any) {
     bmp.read((response: Bitmap) => {
       document.getElementById("options").style.display = "block";
       bmp = response;
+      properties = [document.getElementById("width") , document.getElementById("height") , document.getElementById("bitsDepth") , document.getElementById("size")];
+      bmp.drawProperties(properties);
       bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
       bmp.drawOnCanvas(canvas);
 
