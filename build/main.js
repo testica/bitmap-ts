@@ -71,4 +71,9 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
+    document.getElementById("equalization").addEventListener("click", function () {
+        bmp.equalization();
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+        bmp.drawOnCanvas(canvas);
+    });
 });
