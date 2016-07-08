@@ -167,6 +167,7 @@ export class Bitmap {
           pos += (4 - mode);
         }
       }
+      this._histogram.fillAvg();
 
       return data;
 
@@ -203,7 +204,7 @@ export class Bitmap {
           pos += (4 - mode);
         }
       }
-
+      this._histogram.fillAvg();
       return data;
   }
 
@@ -248,7 +249,7 @@ export class Bitmap {
          pos += (4 - mode);
        }
       }
-
+      this._histogram.fillAvg();
       return data;
   }
 
@@ -284,7 +285,7 @@ export class Bitmap {
           pos += (4 - mode);
         }
       }
-
+      this._histogram.fillAvg();
       return data;
   }
 
@@ -319,7 +320,7 @@ export class Bitmap {
         pos += (4 - mode);
       }
     }
-
+    this._histogram.fillAvg();
     return data;
   }
 
@@ -344,6 +345,7 @@ export class Bitmap {
           }
           pos += (width % 4);
         }
+      this._histogram.fillAvg();
       return data;
   }
 
@@ -473,8 +475,52 @@ export class Bitmap {
     return value;
   }
 
+  private rgb2gray() {
+    this._grayScale = true;
+    this._histogram = new Histogram();
+    for (let i: number = 0; i < this._bitmap.current.data.length; i += 4) {
+      let color: RGBA = new RGBA();
+      color.r = this._bitmap.current.data[i];
+      color.g = this._bitmap.current.data[i + 1];
+      color.b = this._bitmap.current.data[i + 2];
+
+      let gray: number = 0.2989 * color.r + 0.5870 * color.g + 0.1140 * color.b;
+      gray = Math.round(gray);
+      this._bitmap.current.data[i] = gray;
+      this._bitmap.current.data[i + 1] = gray;
+      this._bitmap.current.data[i + 2] = gray;
+    }
+    this._histogram.fillAll(this._bitmap.current.data);
+  }
+
+  public equalization() {
+    if (!this._grayScale)
+      this.rgb2gray();
+    // he were go!
+    let output: number[] = [];
+    let input: number[] = [];
+    let totalPixels: number = this._bitmap.infoHeader.width * this._bitmap.infoHeader.height;
+    input = this._histogram.histogram_avg;
+    output[0] = 0;
+    let acum: number = input[0];
+    for (let i: number = 1; i < 255; i++) {
+      output[i] = Math.floor((acum * 255) / totalPixels);
+      acum += input[i];
+    }
+    output[255] = 255;
+    this._histogram = new Histogram();
+    for (let i: number = 0; i < this._bitmap.current.data.length; i += 4) {
+      let gray: number = output[this._bitmap.current.data[i]];
+      this._bitmap.current.data[i] = gray;
+      this._bitmap.current.data[i + 1] = gray;
+      this._bitmap.current.data[i + 2] = gray;
+      this._histogram.fill(gray, gray, gray);
+    }
+    this._histogram.fillAvg();
+  }
+
   public brightness(value: number) {
-    value = Math.round(value);
+    value = Math.floor(value);
     if (value > 255) value = 255;
     if (value < -255) value = -255;
     let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
@@ -489,7 +535,7 @@ export class Bitmap {
   }
 
   public contrast(value: number) {
-    value = Math.round(value);
+    value = Math.floor(value);
     if (value > 255) value = 255;
     if (value < -255) value = -255;
     let fc: number = (259 * (value + 255)) / (255 * (259 - value));
@@ -533,6 +579,7 @@ export class Bitmap {
       canvas_b.style.display = "none";
       this._histogram.draw_avg(canvas_avg);
     }
+
   }
 
   public drawOnCanvas(canvas: HTMLCanvasElement) {

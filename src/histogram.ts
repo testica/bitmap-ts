@@ -5,7 +5,10 @@ export class Histogram {
   private _histogram_avg: number[];
 
   constructor() {
-    this._histogram_r = this._histogram_g = this._histogram_b = this._histogram_avg = [];
+    this._histogram_r = [];
+    this._histogram_g = [];
+    this._histogram_b = [];
+    this._histogram_avg = [];
     for (let i: number = 0; i < 256; i++) {
        this._histogram_r[i] = 0;
        this._histogram_g[i] = 0;
@@ -18,6 +21,14 @@ export class Histogram {
       this._histogram_r[imageData[i]]++;
       this._histogram_g[imageData[i + 1]]++;
       this._histogram_b[imageData[i + 2]]++;
+    }
+    this.fillAvg();
+  }
+
+  public fillAvg() {
+    for (let i: number = 0; i < 256; i++) {
+      this._histogram_avg[i] = (this._histogram_r[i] + this._histogram_g[i] + this._histogram_b[i]) / 3;
+      this._histogram_avg[i] = Math.floor(this._histogram_avg[i]);
     }
   }
   public fill(r: number, g: number, b: number) {
@@ -46,6 +57,12 @@ export class Histogram {
       ctx.fillRect(i, 100, 1, -Math.round(pct));
     }
   }
+
+  public get histogram_avg(): number[] { return this._histogram_avg; };
+  public get histogram_r(): number[] { return this._histogram_r; };
+  public get histogram_g(): number[] { return this._histogram_g; };
+  public get histogram_b(): number[] { return this._histogram_b; };
+
   public draw_b(canvas: HTMLCanvasElement) {
     let max: number = Math.max.apply(null, this._histogram_b);
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -66,8 +83,7 @@ export class Histogram {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgb(0,0,0)";
     for (let i: number = 0; i < 256; i++) {
-      let prom: number = (this._histogram_r[i] + this._histogram_g[i] + this._histogram_b[i]) / 3;
-      let pct: number = (prom / max) * 100;
+      let pct: number = (this._histogram_avg[i] / max) * 100;
       ctx.fillRect(i, 100, 1, -Math.round(pct));
     }
   }

@@ -143,6 +143,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos += (4 - mode);
                 }
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.decodeBit2 = function () {
@@ -176,6 +177,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos += (4 - mode);
                 }
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.decodeBit4 = function () {
@@ -212,6 +214,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos += (4 - mode);
                 }
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.decodeBit8 = function () {
@@ -246,6 +249,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos += (4 - mode);
                 }
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.decodeBit16 = function () {
@@ -280,6 +284,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos += (4 - mode);
                 }
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.decodeBit24 = function () {
@@ -303,6 +308,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 }
                 pos += (width % 4);
             }
+            this._histogram.fillAvg();
             return data;
         };
         Bitmap.prototype.currentData = function () {
@@ -423,8 +429,48 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 value = 255;
             return value;
         };
+        Bitmap.prototype.rgb2gray = function () {
+            this._grayScale = true;
+            this._histogram = new histogram_1.Histogram();
+            for (var i = 0; i < this._bitmap.current.data.length; i += 4) {
+                var color = new RGBA();
+                color.r = this._bitmap.current.data[i];
+                color.g = this._bitmap.current.data[i + 1];
+                color.b = this._bitmap.current.data[i + 2];
+                var gray = 0.2989 * color.r + 0.5870 * color.g + 0.1140 * color.b;
+                gray = Math.round(gray);
+                this._bitmap.current.data[i] = gray;
+                this._bitmap.current.data[i + 1] = gray;
+                this._bitmap.current.data[i + 2] = gray;
+            }
+            this._histogram.fillAll(this._bitmap.current.data);
+        };
+        Bitmap.prototype.equalization = function () {
+            if (!this._grayScale)
+                this.rgb2gray();
+            var output = [];
+            var input = [];
+            var totalPixels = this._bitmap.infoHeader.width * this._bitmap.infoHeader.height;
+            input = this._histogram.histogram_avg;
+            output[0] = 0;
+            var acum = input[0];
+            for (var i = 1; i < 255; i++) {
+                output[i] = Math.floor((acum * 255) / totalPixels);
+                acum += input[i];
+            }
+            output[255] = 255;
+            this._histogram = new histogram_1.Histogram();
+            for (var i = 0; i < this._bitmap.current.data.length; i += 4) {
+                var gray = output[this._bitmap.current.data[i]];
+                this._bitmap.current.data[i] = gray;
+                this._bitmap.current.data[i + 1] = gray;
+                this._bitmap.current.data[i + 2] = gray;
+                this._histogram.fill(gray, gray, gray);
+            }
+            this._histogram.fillAvg();
+        };
         Bitmap.prototype.brightness = function (value) {
-            value = Math.round(value);
+            value = Math.floor(value);
             if (value > 255)
                 value = 255;
             if (value < -255)
@@ -440,7 +486,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             this._bitmap.current.data = data;
         };
         Bitmap.prototype.contrast = function (value) {
-            value = Math.round(value);
+            value = Math.floor(value);
             if (value > 255)
                 value = 255;
             if (value < -255)
