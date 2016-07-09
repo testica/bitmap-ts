@@ -88,9 +88,20 @@ document.getElementById("contrastBtn").addEventListener("click", () => {
   bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
-// contrast
+// equalization
 document.getElementById("equalization").addEventListener("click", () => {
   bmp.equalization();
   bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
+});
+
+// umbralization
+document.getElementById("umbralization").addEventListener("click" , () => {
+  let minValue:number = + (<HTMLInputElement>document.getElementById("minValueUmbral")).value;
+  let maxValue:number = + (<HTMLInputElement>document.getElementById("maxValueUmbral")).value;
+
+  bmp.umbralization(minValue,maxValue);
+  bmp.drawHistogram(histogram_r , histogram_g , histogram_b , histogram_avg);
+  bmp.drawOnCanvas(canvas);
+
 });
