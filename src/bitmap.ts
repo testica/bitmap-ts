@@ -556,6 +556,34 @@ export class Bitmap {
     }
   }
 
+  public umbralization( minValue:number , maxValue:number)
+  {
+    if (!this._grayScale)
+      this.rgb2gray();
+
+    let data:Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    this._histogram = new Histogram();
+
+    for ( let i: number = 0; i  < data.length; i += 4)
+    {
+      if ( data[i] >= minValue && data[i] <= maxValue )
+      {
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+      }
+      else
+      {
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0
+      }
+    }
+
+    this._histogram.fillAll(data);
+    this._bitmap.current.data = data;
+  }
+
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
     properties[0].innerHTML = this._bitmap.infoHeader.width;
     properties[1].innerHTML = this._bitmap.infoHeader.height;
