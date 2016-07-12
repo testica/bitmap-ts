@@ -1,5 +1,7 @@
 import {Bitmap} from "./bitmap";
 
+declare var saveAs: any;
+
 // File Object
 let file: File;
 let bmp: Bitmap;
@@ -97,11 +99,14 @@ document.getElementById("equalization").addEventListener("click", () => {
 
 // umbralization
 document.getElementById("umbralization").addEventListener("click" , () => {
-  let minValue:number = + (<HTMLInputElement>document.getElementById("minValueUmbral")).value;
-  let maxValue:number = + (<HTMLInputElement>document.getElementById("maxValueUmbral")).value;
+  let minValue: number = + (<HTMLInputElement>document.getElementById("minValueUmbral")).value;
+  let maxValue: number = + (<HTMLInputElement>document.getElementById("maxValueUmbral")).value;
 
-  bmp.umbralization(minValue,maxValue);
+  bmp.umbralization(minValue, maxValue);
   bmp.drawHistogram(histogram_r , histogram_g , histogram_b , histogram_avg);
   bmp.drawOnCanvas(canvas);
 
+});
+document.getElementById("save").addEventListener("click", () => {
+  saveAs(bmp.bl, "image.bmp");
 });

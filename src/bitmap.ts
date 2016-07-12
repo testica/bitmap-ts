@@ -17,6 +17,7 @@ export class Bitmap {
   private _defaultData: any;
   private _histogram: Histogram;
   private _grayScale = false;
+  public bl: Blob;
 
   constructor(file: File) {
     this._histogram = new Histogram();
@@ -28,6 +29,7 @@ export class Bitmap {
     let reader: FileReader = new FileReader();
     reader.onload = (e: any) => {
       let arrayBuffer: ArrayBuffer = reader.result;
+      this.bl = new Blob([new DataView(arrayBuffer)], {type: "application/octet-stream"});
       this.decodeHeader(arrayBuffer);
       this.decodeHeaderInfo(arrayBuffer);
       this.decodePalette(arrayBuffer);
@@ -556,27 +558,23 @@ export class Bitmap {
     }
   }
 
-  public umbralization( minValue:number , maxValue:number)
-  {
+  public umbralization( minValue: number, maxValue: number) {
     if (!this._grayScale)
       this.rgb2gray();
 
-    let data:Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
     this._histogram = new Histogram();
 
-    for ( let i: number = 0; i  < data.length; i += 4)
-    {
-      if ( data[i] >= minValue && data[i] <= maxValue )
-      {
+    for ( let i: number = 0; i  < data.length; i += 4) {
+      if ( data[i] >= minValue && data[i] <= maxValue ) {
         data[i] = 255;
         data[i + 1] = 255;
         data[i + 2] = 255;
       }
-      else
-      {
+      else {
         data[i] = 0;
         data[i + 1] = 0;
-        data[i + 2] = 0
+        data[i + 2] = 0;
       }
     }
 
