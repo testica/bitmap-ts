@@ -30,15 +30,12 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
         Bitmap.prototype.saveFile = function (callback) {
             this.encodeHeader();
             this.encodeInfoHeader();
-            this.encodePalette();
             this.encodeImageData();
             callback(new Blob([this._dataView.buffer], { type: "application/octet-stream" }));
         };
         Bitmap.prototype.encodeHeader = function () {
-            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
-            if (this._bitmap.infoHeader.numberColors > 0) {
-                size += this._bitmap.infoHeader.numberColors * 4;
-            }
+            var bitsPerPixel = 24;
+            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
             size += 54;
             var xlen = Math.ceil(this._bitmap.current.width / 8);
             var mode = xlen % 4;
@@ -50,29 +47,28 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             this._dataView.setInt32(2, size, true);
             this._dataView.setInt16(6, this._bitmap.header.reserved1, true);
             this._dataView.setInt16(8, this._bitmap.header.reserved2, true);
-            this._dataView.setInt32(10, this._bitmap.header.offset, true);
+            this._dataView.setInt32(10, 54, true);
         };
         Bitmap.prototype.encodeInfoHeader = function () {
-            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+            var bitsPerPixel = 24;
+            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
             var xlen = Math.ceil(this._bitmap.current.width / 8);
             var mode = xlen % 4;
             if (mode !== 0) {
                 size += this._bitmap.current.height * (4 - mode);
             }
             var preOffset = 14;
-            this._dataView.setInt32(preOffset + 0, this._bitmap.infoHeader.size, true);
+            this._dataView.setInt32(preOffset + 0, 40, true);
             this._dataView.setInt32(preOffset + 4, this._bitmap.current.width, true);
             this._dataView.setInt32(preOffset + 8, this._bitmap.current.height, true);
             this._dataView.setInt16(preOffset + 12, this._bitmap.infoHeader.planes, true);
-            this._dataView.setInt16(preOffset + 14, this._bitmap.infoHeader.bitsPerPixel, true);
+            this._dataView.setInt16(preOffset + 14, bitsPerPixel, true);
             this._dataView.setInt32(preOffset + 16, this._bitmap.infoHeader.compression, true);
             this._dataView.setInt32(preOffset + 20, size, true);
             this._dataView.setInt32(preOffset + 24, this._bitmap.infoHeader.horizontalRes, true);
             this._dataView.setInt32(preOffset + 28, this._bitmap.infoHeader.verticalRes, true);
-            this._dataView.setInt16(preOffset + 32, this._bitmap.infoHeader.numberColors, true);
-            this._dataView.setInt16(preOffset + 36, this._bitmap.infoHeader.importantColors, true);
-        };
-        Bitmap.prototype.encodePalette = function () {
+            this._dataView.setInt16(preOffset + 32, 0, true);
+            this._dataView.setInt16(preOffset + 36, 0, true);
         };
         Bitmap.prototype.encodeImageData = function () {
             this.enconde24bit();
@@ -525,7 +521,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 this.rgb2gray();
             var output = [];
             var input = [];
-            var totalPixels = this._bitmap.infoHeader.width * this._bitmap.infoHeader.height;
+            var totalPixels = this._bitmap.current.width * this._bitmap.current.height;
             input = this._histogram.histogram_avg;
             output[0] = 0;
             var acum = input[0];
@@ -550,7 +546,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 value = 255;
             if (value < -255)
                 value = -255;
-            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            var data = new Uint8ClampedArray(this._bitmap.current.data);
             this._histogram = new histogram_1.Histogram();
             for (var i = 0; i < data.length; i += 4) {
                 data[i] = this.truncate(data[i] + value);
@@ -567,7 +563,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             if (value < -255)
                 value = -255;
             var fc = (259 * (value + 255)) / (255 * (259 - value));
-            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            var data = new Uint8ClampedArray(this._bitmap.current.data);
             this._histogram = new histogram_1.Histogram();
             for (var i = 0; i < data.length; i += 4) {
                 data[i] = this.truncate(fc * (data[i] - 128) + 128);
@@ -585,7 +581,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
         Bitmap.prototype.umbralization = function (minValue, maxValue) {
             if (!this._grayScale)
                 this.rgb2gray();
-            var data = new Uint8ClampedArray(this._bitmap.defaultData);
+            var data = new Uint8ClampedArray(this._bitmap.current.data);
             this._histogram = new histogram_1.Histogram();
             for (var i = 0; i < data.length; i += 4) {
                 if (data[i] >= minValue && data[i] <= maxValue) {
