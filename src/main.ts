@@ -108,5 +108,7 @@ document.getElementById("umbralization").addEventListener("click" , () => {
 
 });
 document.getElementById("save").addEventListener("click", () => {
-  saveAs(bmp.bl, "image.bmp");
+  bmp.saveFile((file: Blob) => {
+    saveAs(file, "image.bmp");
+  });
 });

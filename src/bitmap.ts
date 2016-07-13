@@ -17,7 +17,7 @@ export class Bitmap {
   private _defaultData: any;
   private _histogram: Histogram;
   private _grayScale = false;
-  public bl: Blob;
+  private _dataView: DataView;
 
   constructor(file: File) {
     this._histogram = new Histogram();
@@ -29,7 +29,7 @@ export class Bitmap {
     let reader: FileReader = new FileReader();
     reader.onload = (e: any) => {
       let arrayBuffer: ArrayBuffer = reader.result;
-      this.bl = new Blob([new DataView(arrayBuffer)], {type: "application/octet-stream"});
+      // this.bl = new Blob([new DataView(arrayBuffer)], {type: "application/octet-stream"});
       this.decodeHeader(arrayBuffer);
       this.decodeHeaderInfo(arrayBuffer);
       this.decodePalette(arrayBuffer);
@@ -39,6 +39,91 @@ export class Bitmap {
       callback(this);
     };
     reader.readAsArrayBuffer(this._file);
+  }
+
+  public saveFile(callback: any) {
+    this.encodeHeader();
+    this.encodeInfoHeader();
+    this.encodePalette();
+    this.encodeImageData();
+    callback(new Blob([this._dataView.buffer], {type: "application/octet-stream"}));
+  }
+
+  private encodeHeader() {
+    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+    if (this._bitmap.infoHeader.numberColors > 0 ) {
+      // length of palette
+      size += this._bitmap.infoHeader.numberColors * 4;
+    }
+    // add header + infoHeader length
+    size += 54;
+    let xlen: number = Math.ceil(this._bitmap.current.width / 8);
+    let mode: number = xlen % 4;
+    if ( mode !== 0) {
+      size += this._bitmap.current.height * (4 - mode);
+    }
+    this._dataView = new DataView(new ArrayBuffer(size));
+    this._dataView.setInt16(0, this._bitmap.header.type, true);
+    this._dataView.setInt32(2, size, true);
+    this._dataView.setInt16(6, this._bitmap.header.reserved1, true);
+    this._dataView.setInt16(8, this._bitmap.header.reserved2, true);
+    this._dataView.setInt32(10, this._bitmap.header.offset, true);
+  }
+  private encodeInfoHeader() {
+    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+    let xlen: number = Math.ceil(this._bitmap.current.width / 8);
+    let mode: number = xlen % 4;
+    if ( mode !== 0) {
+      size += this._bitmap.current.height * (4 - mode);
+    }
+    let preOffset: number = 14;
+    this._dataView.setInt32(preOffset + 0, this._bitmap.infoHeader.size, true);
+    this._dataView.setInt32(preOffset + 4, this._bitmap.current.width, true);
+    this._dataView.setInt32(preOffset + 8, this._bitmap.current.height, true);
+    this._dataView.setInt16(preOffset + 12, this._bitmap.infoHeader.planes, true);
+    this._dataView.setInt16(preOffset + 14, this._bitmap.infoHeader.bitsPerPixel, true);
+    this._dataView.setInt32(preOffset + 16, this._bitmap.infoHeader.compression, true);
+    this._dataView.setInt32(preOffset + 20, size, true);
+    this._dataView.setInt32(preOffset + 24, this._bitmap.infoHeader.horizontalRes, true);
+    this._dataView.setInt32(preOffset + 28, this._bitmap.infoHeader.verticalRes, true);
+    this._dataView.setInt16(preOffset + 32, this._bitmap.infoHeader.numberColors, true);
+    this._dataView.setInt16(preOffset + 36, this._bitmap.infoHeader.importantColors, true);
+  }
+
+  private encodePalette() {
+    // XXX: Not sure if it has to be coded
+  }
+
+  private encodeImageData() {
+    // XXX: only works with 24 bpp images by moment.
+    this.enconde24bit();
+
+  }
+
+  private enconde24bit() {
+    let width: number = this._bitmap.current.width;
+    let height: number = this._bitmap.current.height;
+    let pos: number = 0;
+    let xlen: number = Math.ceil(width / 8);
+    let mode: number = xlen % 4;
+    let location: number;
+    let pad: number = 4 - mode;
+    for (let y: number = height - 1; y >= 0; y--) {
+        for (let x: number = 0; x < width; x++) {
+          let color: RGBA = new RGBA();
+          color.r = this._bitmap.current.data[pos++];
+          color.g = this._bitmap.current.data[pos++];
+          color.b = this._bitmap.current.data[pos++];
+          pos++;
+          location = y * width * 3 + x * 3;
+          location += 54;
+          if (mode !== 0)
+            location += (pad * y);
+          this._dataView.setInt8(location, color.b);
+          this._dataView.setInt8(location + 1, color.g);
+          this._dataView.setInt8(location + 2, color.r);
+        }
+      }
   }
 
   private decodeHeader(buffer: ArrayBuffer) {

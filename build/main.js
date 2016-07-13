@@ -84,6 +84,8 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("save").addEventListener("click", function () {
-        saveAs(bmp.bl, "image.bmp");
+        bmp.saveFile(function (file) {
+            saveAs(file, "image.bmp");
+        });
     });
 });

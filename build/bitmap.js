@@ -18,7 +18,6 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             var reader = new FileReader();
             reader.onload = function (e) {
                 var arrayBuffer = reader.result;
-                _this.bl = new Blob([new DataView(arrayBuffer)], { type: "application/octet-stream" });
                 _this.decodeHeader(arrayBuffer);
                 _this.decodeHeaderInfo(arrayBuffer);
                 _this.decodePalette(arrayBuffer);
@@ -27,6 +26,81 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                 callback(_this);
             };
             reader.readAsArrayBuffer(this._file);
+        };
+        Bitmap.prototype.saveFile = function (callback) {
+            this.encodeHeader();
+            this.encodeInfoHeader();
+            this.encodePalette();
+            this.encodeImageData();
+            callback(new Blob([this._dataView.buffer], { type: "application/octet-stream" }));
+        };
+        Bitmap.prototype.encodeHeader = function () {
+            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+            if (this._bitmap.infoHeader.numberColors > 0) {
+                size += this._bitmap.infoHeader.numberColors * 4;
+            }
+            size += 54;
+            var xlen = Math.ceil(this._bitmap.current.width / 8);
+            var mode = xlen % 4;
+            if (mode !== 0) {
+                size += this._bitmap.current.height * (4 - mode);
+            }
+            this._dataView = new DataView(new ArrayBuffer(size));
+            this._dataView.setInt16(0, this._bitmap.header.type, true);
+            this._dataView.setInt32(2, size, true);
+            this._dataView.setInt16(6, this._bitmap.header.reserved1, true);
+            this._dataView.setInt16(8, this._bitmap.header.reserved2, true);
+            this._dataView.setInt32(10, this._bitmap.header.offset, true);
+        };
+        Bitmap.prototype.encodeInfoHeader = function () {
+            var size = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+            var xlen = Math.ceil(this._bitmap.current.width / 8);
+            var mode = xlen % 4;
+            if (mode !== 0) {
+                size += this._bitmap.current.height * (4 - mode);
+            }
+            var preOffset = 14;
+            this._dataView.setInt32(preOffset + 0, this._bitmap.infoHeader.size, true);
+            this._dataView.setInt32(preOffset + 4, this._bitmap.current.width, true);
+            this._dataView.setInt32(preOffset + 8, this._bitmap.current.height, true);
+            this._dataView.setInt16(preOffset + 12, this._bitmap.infoHeader.planes, true);
+            this._dataView.setInt16(preOffset + 14, this._bitmap.infoHeader.bitsPerPixel, true);
+            this._dataView.setInt32(preOffset + 16, this._bitmap.infoHeader.compression, true);
+            this._dataView.setInt32(preOffset + 20, size, true);
+            this._dataView.setInt32(preOffset + 24, this._bitmap.infoHeader.horizontalRes, true);
+            this._dataView.setInt32(preOffset + 28, this._bitmap.infoHeader.verticalRes, true);
+            this._dataView.setInt16(preOffset + 32, this._bitmap.infoHeader.numberColors, true);
+            this._dataView.setInt16(preOffset + 36, this._bitmap.infoHeader.importantColors, true);
+        };
+        Bitmap.prototype.encodePalette = function () {
+        };
+        Bitmap.prototype.encodeImageData = function () {
+            this.enconde24bit();
+        };
+        Bitmap.prototype.enconde24bit = function () {
+            var width = this._bitmap.current.width;
+            var height = this._bitmap.current.height;
+            var pos = 0;
+            var xlen = Math.ceil(width / 8);
+            var mode = xlen % 4;
+            var location;
+            var pad = 4 - mode;
+            for (var y = height - 1; y >= 0; y--) {
+                for (var x = 0; x < width; x++) {
+                    var color = new RGBA();
+                    color.r = this._bitmap.current.data[pos++];
+                    color.g = this._bitmap.current.data[pos++];
+                    color.b = this._bitmap.current.data[pos++];
+                    pos++;
+                    location = y * width * 3 + x * 3;
+                    location += 54;
+                    if (mode !== 0)
+                        location += (pad * y);
+                    this._dataView.setInt8(location, color.b);
+                    this._dataView.setInt8(location + 1, color.g);
+                    this._dataView.setInt8(location + 2, color.r);
+                }
+            }
         };
         Bitmap.prototype.decodeHeader = function (buffer) {
             var header;
