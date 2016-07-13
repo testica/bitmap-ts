@@ -14,6 +14,10 @@ The following functions are available:
 - drawOnCanvas(canvas)
 - drawHistogram(canvas_r, canvas_g, canvas_b, canvas_avg)
 - brightness(value)
+- contrast(value)
+- equalization()
+- umbralization(min, max)
+- saveFile(callback)
 
 ### How to use
 I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.
@@ -59,6 +63,11 @@ Now is possible draw image's histogram, for the moments you have to pass 4 canva
 RequireJS in needed to allow exports and import Bitmap module.
 ```html
 <script data-main="../../build/main.js" src="../../lib/require.js"></script>
+```
+
+FileSaver is required, it allows to write a DataView in Blob.
+```html
+<script src="../../lib/FileSaver.min.js"></script>
 ```
 ### Demo
 Visit [the github repository page](https://testica.github.io/bitmap-ts/) to see a demo.
