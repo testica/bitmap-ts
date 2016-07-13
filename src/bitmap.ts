@@ -44,17 +44,14 @@ export class Bitmap {
   public saveFile(callback: any) {
     this.encodeHeader();
     this.encodeInfoHeader();
-    this.encodePalette();
     this.encodeImageData();
     callback(new Blob([this._dataView.buffer], {type: "application/octet-stream"}));
   }
 
   private encodeHeader() {
-    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
-    if (this._bitmap.infoHeader.numberColors > 0 ) {
-      // length of palette
-      size += this._bitmap.infoHeader.numberColors * 4;
-    }
+    // export image on 24 bpp
+    let bitsPerPixel: number = 24;
+    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
     // add header + infoHeader length
     size += 54;
     let xlen: number = Math.ceil(this._bitmap.current.width / 8);
@@ -67,31 +64,29 @@ export class Bitmap {
     this._dataView.setInt32(2, size, true);
     this._dataView.setInt16(6, this._bitmap.header.reserved1, true);
     this._dataView.setInt16(8, this._bitmap.header.reserved2, true);
-    this._dataView.setInt32(10, this._bitmap.header.offset, true);
+    this._dataView.setInt32(10, 54, true);
   }
   private encodeInfoHeader() {
-    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (this._bitmap.infoHeader.bitsPerPixel / 8));
+    // export image on 24 bpp
+    let bitsPerPixel: number = 24;
+    let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
     let xlen: number = Math.ceil(this._bitmap.current.width / 8);
     let mode: number = xlen % 4;
     if ( mode !== 0) {
       size += this._bitmap.current.height * (4 - mode);
     }
     let preOffset: number = 14;
-    this._dataView.setInt32(preOffset + 0, this._bitmap.infoHeader.size, true);
+    this._dataView.setInt32(preOffset + 0, 40, true);
     this._dataView.setInt32(preOffset + 4, this._bitmap.current.width, true);
     this._dataView.setInt32(preOffset + 8, this._bitmap.current.height, true);
     this._dataView.setInt16(preOffset + 12, this._bitmap.infoHeader.planes, true);
-    this._dataView.setInt16(preOffset + 14, this._bitmap.infoHeader.bitsPerPixel, true);
+    this._dataView.setInt16(preOffset + 14, bitsPerPixel, true);
     this._dataView.setInt32(preOffset + 16, this._bitmap.infoHeader.compression, true);
     this._dataView.setInt32(preOffset + 20, size, true);
     this._dataView.setInt32(preOffset + 24, this._bitmap.infoHeader.horizontalRes, true);
     this._dataView.setInt32(preOffset + 28, this._bitmap.infoHeader.verticalRes, true);
-    this._dataView.setInt16(preOffset + 32, this._bitmap.infoHeader.numberColors, true);
-    this._dataView.setInt16(preOffset + 36, this._bitmap.infoHeader.importantColors, true);
-  }
-
-  private encodePalette() {
-    // XXX: Not sure if it has to be coded
+    this._dataView.setInt16(preOffset + 32, 0, true);
+    this._dataView.setInt16(preOffset + 36, 0, true);
   }
 
   private encodeImageData() {
@@ -586,7 +581,7 @@ export class Bitmap {
     // he were go!
     let output: number[] = [];
     let input: number[] = [];
-    let totalPixels: number = this._bitmap.infoHeader.width * this._bitmap.infoHeader.height;
+    let totalPixels: number = this._bitmap.current.width * this._bitmap.current.height;
     input = this._histogram.histogram_avg;
     output[0] = 0;
     let acum: number = input[0];
@@ -610,7 +605,7 @@ export class Bitmap {
     value = Math.floor(value);
     if (value > 255) value = 255;
     if (value < -255) value = -255;
-    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.current.data);
     this._histogram = new Histogram();
     for (let i: number = 0; i < data.length; i += 4) {
       data[i] = this.truncate(data[i] + value);
@@ -626,7 +621,7 @@ export class Bitmap {
     if (value > 255) value = 255;
     if (value < -255) value = -255;
     let fc: number = (259 * (value + 255)) / (255 * (259 - value));
-    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.current.data);
     this._histogram = new Histogram();
     for (let i: number = 0; i < data.length; i += 4) {
       data[i] = this.truncate(fc * (data[i] - 128) + 128);
@@ -647,7 +642,7 @@ export class Bitmap {
     if (!this._grayScale)
       this.rgb2gray();
 
-    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.defaultData);
+    let data: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.current.data);
     this._histogram = new Histogram();
 
     for ( let i: number = 0; i  < data.length; i += 4) {
