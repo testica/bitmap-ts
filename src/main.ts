@@ -112,3 +112,16 @@ document.getElementById("save").addEventListener("click", () => {
     saveAs(file, "image.bmp");
   });
 });
+// scale
+document.getElementById("scaleBtn").addEventListener("click", () => {
+  let scaleWidth: number = + (<HTMLInputElement>document.getElementById("scaleWidth")).value;
+  let scaleHeight: number = + (<HTMLInputElement>document.getElementById("scaleHeight")).value;
+  if ((<HTMLInputElement> document.getElementsByName("algorithm")[0]).checked) {
+    // neighbor algorithm
+    bmp.scale(scaleWidth, scaleHeight, "neighbor");
+    bmp.drawOnCanvas(canvas);
+  } else {
+    // interpolation algorithm
+    bmp.scale(scaleWidth, scaleHeight, "interpolation");
+  }
+});
