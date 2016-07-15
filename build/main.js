@@ -88,4 +88,15 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             saveAs(file, "image.bmp");
         });
     });
+    document.getElementById("scaleBtn").addEventListener("click", function () {
+        var scaleWidth = +document.getElementById("scaleWidth").value;
+        var scaleHeight = +document.getElementById("scaleHeight").value;
+        if (document.getElementsByName("algorithm")[0].checked) {
+            bmp.scale(scaleWidth, scaleHeight, "neighbor");
+            bmp.drawOnCanvas(canvas);
+        }
+        else {
+            bmp.scale(scaleWidth, scaleHeight, "interpolation");
+        }
+    });
 });

@@ -1,4 +1,4 @@
-define(["require", "exports", "./histogram"], function (require, exports, histogram_1) {
+define(["require", "exports", "./histogram", "./transform"], function (require, exports, histogram_1, transform_1) {
     "use strict";
     var RGBA = (function () {
         function RGBA() {
@@ -12,6 +12,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             this._histogram = new histogram_1.Histogram();
             this._bitmap = {};
             this._file = file;
+            this._transform = new transform_1.Transform();
         }
         Bitmap.prototype.read = function (callback) {
             var _this = this;
@@ -77,7 +78,7 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
             var pos = 0;
-            var xlen = Math.ceil(width / 8);
+            var xlen = (width * 3);
             var mode = xlen % 4;
             var location;
             var pad = 4 - mode;
@@ -90,8 +91,9 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
                     pos++;
                     location = y * width * 3 + x * 3;
                     location += 54;
-                    if (mode !== 0)
+                    if (mode !== 0) {
                         location += (pad * y);
+                    }
                     this._dataView.setInt8(location, color.b);
                     this._dataView.setInt8(location + 1, color.g);
                     this._dataView.setInt8(location + 2, color.r);
@@ -597,6 +599,16 @@ define(["require", "exports", "./histogram"], function (require, exports, histog
             }
             this._histogram.fillAll(data);
             this._bitmap.current.data = data;
+        };
+        Bitmap.prototype.scale = function (owidth, oheight, algorithm) {
+            if (algorithm === "neighbor")
+                this._transform.setNeighbor();
+            if (algorithm === "interpolation")
+                this._transform.setInterpolation();
+            this._bitmap.current.data = this._transform.scale(owidth, oheight, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            this._bitmap.current.width = owidth;
+            this._bitmap.current.height = oheight;
+            console.log(this._bitmap.current);
         };
         Bitmap.prototype.drawProperties = function (properties) {
             properties[0].innerHTML = this._bitmap.infoHeader.width;

@@ -1,4 +1,5 @@
 import {Histogram} from "./histogram";
+import {Transform} from "./transform";
 
 class RGBA {
   r: number;
@@ -13,6 +14,7 @@ class RGBA {
 export class Bitmap {
 
   private _bitmap;
+  private _transform: Transform;
   private _file;
   private _defaultData: any;
   private _histogram: Histogram;
@@ -23,6 +25,7 @@ export class Bitmap {
     this._histogram = new Histogram();
     this._bitmap = {};
     this._file = file;
+    this._transform = new Transform();
   }
 
   public read(callback: any) {
@@ -99,7 +102,7 @@ export class Bitmap {
     let width: number = this._bitmap.current.width;
     let height: number = this._bitmap.current.height;
     let pos: number = 0;
-    let xlen: number = Math.ceil(width / 8);
+    let xlen: number = (width * 3);
     let mode: number = xlen % 4;
     let location: number;
     let pad: number = 4 - mode;
@@ -112,8 +115,9 @@ export class Bitmap {
           pos++;
           location = y * width * 3 + x * 3;
           location += 54;
-          if (mode !== 0)
+          if (mode !== 0) {
             location += (pad * y);
+          }
           this._dataView.setInt8(location, color.b);
           this._dataView.setInt8(location + 1, color.g);
           this._dataView.setInt8(location + 2, color.r);
@@ -660,6 +664,19 @@ export class Bitmap {
 
     this._histogram.fillAll(data);
     this._bitmap.current.data = data;
+  }
+
+  public scale(owidth: number, oheight: number, algorithm: string) {
+    if (algorithm === "neighbor")
+      this._transform.setNeighbor();
+
+    if (algorithm === "interpolation")
+      this._transform.setInterpolation();
+
+    this._bitmap.current.data = this._transform.scale(owidth, oheight, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    this._bitmap.current.width = owidth;
+    this._bitmap.current.height = oheight;
+    console.log(this._bitmap.current);
   }
 
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
