@@ -18,6 +18,7 @@ The following functions are available:
 - equalization()
 - umbralization(min, max)
 - saveFile(callback)
+- scale(width, height, 'interpolation|neighbor')
 
 ### How to use
 I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.

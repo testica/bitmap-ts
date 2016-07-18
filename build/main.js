@@ -97,6 +97,7 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         }
         else {
             bmp.scale(scaleWidth, scaleHeight, "interpolation");
+            bmp.drawOnCanvas(canvas);
         }
     });
 });

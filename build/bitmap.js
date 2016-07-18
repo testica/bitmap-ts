@@ -38,7 +38,7 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             var bitsPerPixel = 24;
             var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
             size += 54;
-            var xlen = Math.ceil(this._bitmap.current.width / 8);
+            var xlen = (this._bitmap.current.width * 3);
             var mode = xlen % 4;
             if (mode !== 0) {
                 size += this._bitmap.current.height * (4 - mode);
@@ -53,7 +53,7 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
         Bitmap.prototype.encodeInfoHeader = function () {
             var bitsPerPixel = 24;
             var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
-            var xlen = Math.ceil(this._bitmap.current.width / 8);
+            var xlen = (this._bitmap.current.width * 3);
             var mode = xlen % 4;
             if (mode !== 0) {
                 size += this._bitmap.current.height * (4 - mode);

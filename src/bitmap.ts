@@ -57,7 +57,7 @@ export class Bitmap {
     let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
     // add header + infoHeader length
     size += 54;
-    let xlen: number = Math.ceil(this._bitmap.current.width / 8);
+    let xlen: number = (this._bitmap.current.width * 3);
     let mode: number = xlen % 4;
     if ( mode !== 0) {
       size += this._bitmap.current.height * (4 - mode);
@@ -73,7 +73,7 @@ export class Bitmap {
     // export image on 24 bpp
     let bitsPerPixel: number = 24;
     let size: number = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
-    let xlen: number = Math.ceil(this._bitmap.current.width / 8);
+    let xlen: number = (this._bitmap.current.width * 3);
     let mode: number = xlen % 4;
     if ( mode !== 0) {
       size += this._bitmap.current.height * (4 - mode);
