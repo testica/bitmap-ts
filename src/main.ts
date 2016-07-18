@@ -123,5 +123,6 @@ document.getElementById("scaleBtn").addEventListener("click", () => {
   } else {
     // interpolation algorithm
     bmp.scale(scaleWidth, scaleHeight, "interpolation");
+    bmp.drawOnCanvas(canvas);
   }
 });
