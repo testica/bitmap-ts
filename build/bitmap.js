@@ -637,31 +637,19 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
         Bitmap.prototype.drawOnCanvas = function (canvas) {
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
-            canvas.style.display = "none";
-            var w = canvas.width;
-            var h = canvas.height;
+            canvas.style.display = "block";
             canvas.height = height;
             canvas.width = width;
+            if ((height / width) > 1)
+                canvas.style.width = (30 / (height / width)).toString() + "%";
+            else {
+                canvas.style.width = "30%";
+            }
             var ctx = canvas.getContext("2d");
             var imageData = ctx.createImageData(width, height);
             imageData.data.set(this._bitmap.current.data);
+            ctx.clearRect(0, 0, width, height);
             ctx.putImageData(imageData, 0, 0);
-            var imageObject = new Image();
-            imageObject.onload = function () {
-                var ratio = width / height;
-                var windowRatio = w / h;
-                var scale = w / width;
-                if (windowRatio > ratio) {
-                    scale = h / height;
-                }
-                canvas.height = h;
-                canvas.width = w;
-                ctx.clearRect(0, 0, width, height);
-                ctx.scale(scale, scale);
-                ctx.drawImage(imageObject, 0, 0);
-                canvas.style.display = "block";
-            };
-            imageObject.src = canvas.toDataURL();
         };
         return Bitmap;
     }());
