@@ -709,31 +709,21 @@ export class Bitmap {
       /* scale and center image*/
       let width: number = this._bitmap.current.width;
       let height: number = this._bitmap.current.height;
-      canvas.style.display = "none";
-      let w: number = canvas.width;
-      let h: number = canvas.height;
+      canvas.style.display = "block";
       canvas.height = height;
       canvas.width = width;
+      if ( (height / width)  > 1)
+        canvas.style.width = (30 / (height / width)).toString() + "%";
+      else {
+        canvas.style.width = "30%";
+      }
       let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
       let imageData: ImageData = ctx.createImageData(width, height);
       imageData.data.set(this._bitmap.current.data);
+      ctx.clearRect(0, 0, width, height);
       ctx.putImageData(imageData, 0, 0);
-      let imageObject: any = new Image();
-      imageObject.onload = () => {
-        let ratio: number = width / height;
-        let windowRatio: number = w / h;
-        let scale: number = w / width;
-        if (windowRatio > ratio) {
-          scale = h / height;
-        }
-        canvas.height = h;
-        canvas.width = w;
-        ctx.clearRect(0, 0, width, height);
-        ctx.scale(scale, scale);
-        ctx.drawImage(imageObject, 0, 0);
-        canvas.style.display = "block";
-      };
-      imageObject.src = canvas.toDataURL();
+
+
   }
 
 
