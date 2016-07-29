@@ -74,7 +74,7 @@ export class Transform {
           neighborColors[n].b = currentData[ilocation + 2];
         }
         let finalPixel: RGBA = new RGBA();
-        // Doing interpolation to each color!
+        // Doing interpolation for each color!
         finalPixel.r = fixed * ((neighborColors[0].r * (x2 - ix) * (y2 - iy)) +
                                (neighborColors[1].r * (ix - x1) * (y2 - iy)) +
                                (neighborColors[2].r * (x2 - ix) * (iy - y1)) +
