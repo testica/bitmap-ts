@@ -4,6 +4,7 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
     var file;
     var bmp;
     var canvas = document.getElementById("canvas1");
+    var modal = document.getElementById("myModal");
     var properties;
     var histogram_r = document.getElementById("histogram_r");
     var histogram_g = document.getElementById("histogram_g");
@@ -103,7 +104,38 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             saveAs(file, "image.bmp");
         });
     });
+<<<<<<< HEAD
     // scale
+=======
+    document.getElementById("openModal").addEventListener("click", function () {
+        modal.style.display = "block";
+        document.getElementsByClassName("close")[0].addEventListener("click", function () {
+            modal.style.display = "none";
+            document.getElementById("inputRange").value = "1";
+            document.getElementById("zoomedCanvas").height = 0;
+            document.getElementById("zoomedCanvas").width = 0;
+        });
+        window.addEventListener("click", function () {
+            if (event.target === modal) {
+                document.getElementById("inputRange").value = "1";
+                modal.style.display = "none";
+                document.getElementById("zoomedCanvas").height = 0;
+                document.getElementById("zoomedCanvas").width = 0;
+            }
+        });
+        bmp.drawOnCanvas(document.getElementById("originalCanvas"));
+        document.getElementById("inputRange").addEventListener("change", function () {
+            var input = +document.getElementById("inputRange").value;
+            bmp.drawOnCanvas(document.getElementById("originalCanvas"));
+            if (document.getElementsByName("algorithm")[0].checked) {
+                bmp.drawOnCanvasWithZoom(document.getElementById("zoomedCanvas"), input, "neighbor");
+            }
+            else {
+                bmp.drawOnCanvasWithZoom(document.getElementById("zoomedCanvas"), input, "interpolation");
+            }
+        });
+    });
+>>>>>>> origin/master
     document.getElementById("scaleBtn").addEventListener("click", function () {
         var scaleWidth = +document.getElementById("scaleWidth").value;
         var scaleHeight = +document.getElementById("scaleHeight").value;
