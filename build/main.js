@@ -1,5 +1,6 @@
 define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1) {
     "use strict";
+    // File Object
     var file;
     var bmp;
     var canvas = document.getElementById("canvas1");
@@ -25,57 +26,71 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             bmp.drawOnCanvas(canvas);
         });
     }
+    // EventListene when file input is changed
     document.getElementById("file").addEventListener("change", handleFileSelect, false);
+    // BUTTONS FUNCTIONS
+    // Negative
     document.getElementById("negative").addEventListener("click", function () {
         bmp.negative();
         bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
+    // Rotate 90 CW
     document.getElementById("rotate90CW").addEventListener("click", function () {
         bmp.rotate90CW();
         bmp.drawOnCanvas(canvas);
     });
+    // Rotate 180
     document.getElementById("rotate180").addEventListener("click", function () {
         bmp.rotate180();
         bmp.drawOnCanvas(canvas);
     });
+    // Rotate 270 CW
     document.getElementById("rotate270CW").addEventListener("click", function () {
         bmp.rotate270CW();
         bmp.drawOnCanvas(canvas);
     });
+    // Rotate 90 CCW
     document.getElementById("rotate90CCW").addEventListener("click", function () {
         bmp.rotate90CCW();
         bmp.drawOnCanvas(canvas);
     });
+    // Rotate 270 CCW
     document.getElementById("rotate270CCW").addEventListener("click", function () {
         bmp.rotate270CCW();
         bmp.drawOnCanvas(canvas);
     });
+    // Horizontal Flip
     document.getElementById("horizontalFlip").addEventListener("click", function () {
         bmp.horizontalFlip();
         bmp.drawOnCanvas(canvas);
     });
+    // Vertical Flip
     document.getElementById("verticalFlip").addEventListener("click", function () {
         bmp.verticalFlip();
         bmp.drawOnCanvas(canvas);
     });
+    // Brightness
     document.getElementById("brightnessBtn").addEventListener("click", function () {
         var value = +document.getElementById("brightness").value;
         bmp.brightness(value);
         bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
+    // contrast
     document.getElementById("contrastBtn").addEventListener("click", function () {
         var value = +document.getElementById("contrast").value;
         bmp.contrast(value);
         bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
+    // equalization
     document.getElementById("equalization").addEventListener("click", function () {
         bmp.equalization();
         bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
+    // umbralization
     document.getElementById("umbralization").addEventListener("click", function () {
         var minValue = +document.getElementById("minValueUmbral").value;
         var maxValue = +document.getElementById("maxValueUmbral").value;
@@ -88,16 +103,26 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             saveAs(file, "image.bmp");
         });
     });
+    // scale
     document.getElementById("scaleBtn").addEventListener("click", function () {
         var scaleWidth = +document.getElementById("scaleWidth").value;
         var scaleHeight = +document.getElementById("scaleHeight").value;
         if (document.getElementsByName("algorithm")[0].checked) {
+            // neighbor algorithm
             bmp.scale(scaleWidth, scaleHeight, "neighbor");
             bmp.drawOnCanvas(canvas);
         }
         else {
+            // interpolation algorithm
             bmp.scale(scaleWidth, scaleHeight, "interpolation");
             bmp.drawOnCanvas(canvas);
         }
+    });
+    // rotate
+    document.getElementById("rotateBtn").addEventListener("click", function () {
+        var rotateAngle = +document.getElementById("rotateAngle").value;
+        // interpolation algorithm
+        bmp.rotate((rotateAngle * Math.PI) / 180);
+        bmp.drawOnCanvas(canvas);
     });
 });

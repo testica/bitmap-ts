@@ -19,6 +19,7 @@ export class Bitmap {
   private _defaultData: any;
   private _histogram: Histogram;
   private _grayScale = false;
+  private _rotateAngle = 0;
   private _dataView: DataView;
 
   constructor(file: File) {
@@ -674,6 +675,42 @@ export class Bitmap {
       this._transform.setInterpolation();
 
     this._bitmap.current.data = this._transform.scale(owidth, oheight, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    this._bitmap.current.width = owidth;
+    this._bitmap.current.height = oheight;
+    console.log(this._bitmap.current);
+  }
+
+
+  public rotate(angle:number) {
+
+    //Calcular el nuevo width y height
+    //Calcular el desplazamiento
+    this._rotateAngle += angle;
+    let iwidth = this._bitmap.infoHeader.width;
+    let iheight = this._bitmap.infoHeader.height;
+    let coseno:number = Math.cos(this._rotateAngle);
+    let seno:number = Math.sin(this._rotateAngle);
+
+    let x1,x2,x3,x4,y1,y2,y3,y4:number;
+    x1 = 0; y1 = 0; // (0,0)
+    x2 = Math.floor((iwidth-1)*coseno); y2 = Math.floor(-(iwidth -1)*seno); // (iwidth-1,0)
+    x3 = Math.floor((iheight-1)*seno); y3 = Math.floor((iheight-1)*coseno); // (0,iheight-1)
+    x4 = Math.floor((iwidth-1)*coseno + (iheight-1)*seno); y4 = Math.floor(-(iwidth-1)*seno + (iheight-1)*coseno); // (iwidht-1,iheight-1)
+
+    let minX , maxX , minY , maxY , dx , dy:number;
+
+    minX = Math.min(x1,x2,x3,x4);
+    maxX = Math.max(x1,x2,x3,x4);
+    minY = Math.min(y1,y2,y3,y4);
+    maxY = Math.max(y1,y2,y3,y4);
+
+    let owidth:number = maxX - minX + 1;
+    let oheight:number = maxY - minY + 1;
+
+    dx = minX;
+    dy = minY;
+
+    this._bitmap.current.data = this._transform.rotate(this._rotateAngle , owidth , oheight , dx , dy , this._bitmap.defaultData, this._bitmap.infoHeader.width, this._bitmap.infoHeader.height);
     this._bitmap.current.width = owidth;
     this._bitmap.current.height = oheight;
     console.log(this._bitmap.current);

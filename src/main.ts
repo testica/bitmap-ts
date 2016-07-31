@@ -126,3 +126,11 @@ document.getElementById("scaleBtn").addEventListener("click", () => {
     bmp.drawOnCanvas(canvas);
   }
 });
+// rotate
+document.getElementById("rotateBtn").addEventListener("click", () => {
+  let rotateAngle: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+
+  // interpolation algorithm
+  bmp.rotate((rotateAngle*Math.PI)/180);
+  bmp.drawOnCanvas(canvas);
+});

@@ -99,6 +99,71 @@ export class Transform {
     return data;
   }
 
+  public rotate(angle:number, owidth: number, oheight: number, dx: number, dy: number, currentData: Uint8ClampedArray, iwidth: number, iheight: number): Uint8ClampedArray {
+    let data: any = new Uint8ClampedArray(owidth * oheight * 4);
+    let ilocation: number;
+    let coseno:number = Math.cos(-angle);
+    let seno:number = Math.sin(-angle);
+
+    let x1: number, x2: number, y1: number, y2: number;
+    for (let y: number = 0; y < oheight; y++) {
+      for (let x: number = 0; x < owidth; x++) {
+        let olocation: number = y * owidth * 4 + x * 4;
+        let ix: number = (x + dx)*coseno + (y+dy)*seno + 1e-5;
+        let iy: number = -(x + dx)*seno + (y + dy)*coseno + 1e-5;
+
+        if ( ix >= 0 && ix <= iwidth && iy >= 0 && iy <= iheight)
+        {
+          // 4 nearest neighbors
+          let neighbor: Array<[number, number]> = this.neighbor2x2([ix, iy], iwidth - 1, iheight - 1);
+          x2 = neighbor[1][0];
+          x1 = neighbor[0][0];
+          y2 = neighbor[2][1];
+          y1 = neighbor[0][1];
+          let fixed: number = (1 / ((x2 - x1) * (y2 - y1)));
+          let neighborColors: RGBA[] = [new RGBA(), new RGBA(), new RGBA(), new RGBA()];
+          // fill neighborColors        
+          for (let n: number = 0; n < 4; n ++) {
+            ilocation = neighbor[n][1] * iwidth * 4 + neighbor[n][0] * 4;
+            neighborColors[n].r = currentData[ilocation];
+            neighborColors[n].g = currentData[ilocation + 1];
+            neighborColors[n].b = currentData[ilocation + 2];
+          }
+          let finalPixel: RGBA = new RGBA();
+
+          // Doing interpolation to each color!
+          finalPixel.r = fixed * ((neighborColors[0].r * (x2 - ix) * (y2 - iy)) +
+                                 (neighborColors[1].r * (ix - x1) * (y2 - iy)) +
+                                 (neighborColors[2].r * (x2 - ix) * (iy - y1)) +
+                                 (neighborColors[3].r * (ix - x1) * (iy - y1)));
+
+          finalPixel.g = fixed * ((neighborColors[0].g * (x2 - ix) * (y2 - iy)) +
+                                  (neighborColors[1].g * (ix - x1) * (y2 - iy)) +
+                                  (neighborColors[2].g * (x2 - ix) * (iy - y1)) +
+                                  (neighborColors[3].g * (ix - x1) * (iy - y1)));
+
+          finalPixel.b = fixed * ((neighborColors[0].b * (x2 - ix) * (y2 - iy)) +
+                                  (neighborColors[1].b * (ix - x1) * (y2 - iy)) +
+                                  (neighborColors[2].b * (x2 - ix) * (iy - y1)) +
+                                  (neighborColors[3].b * (ix - x1) * (iy - y1)));
+
+          data[olocation] = Math.floor(finalPixel.r);
+          data[olocation + 1] = Math.floor(finalPixel.g);
+          data[olocation + 2] =  Math.floor(finalPixel.b);
+          data[olocation + 3] =  0xFF;
+        }
+        else
+        {
+          data[olocation] = 0x00;
+          data[olocation + 1] = 0x00;
+          data[olocation + 2] = 0x00;
+          data[olocation + 3] = 0xFF; 
+        }
+      }
+    }
+    return data;
+  }
+
   private neighbor(value: number, max: number): number {
     if ( Math.floor(value) === max) {
       return max;
