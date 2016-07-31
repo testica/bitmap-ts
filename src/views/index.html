@@ -6,6 +6,32 @@
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
+    <div id="myModal" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">×</span>
+        <div>
+          <canvas id="originalCanvas" style="display: block">
+          </canvas>
+        </div>
+        <div>
+          <canvas id="zoomedCanvas" style="display: block">
+          </canvas>
+        </div>
+        <hr>
+        Zoom:<select id="inputRange" >
+          <option value="1"> 1X
+          <option value="1.5"> 1.5X
+          <option value="2"> 2X
+          <option value="4"> 4X
+          <option value="5"> 5X
+          <option value="7"> 7X
+          <option value="10"> 10X
+        </select>
+      </div>
+
+    </div>
     <canvas id="canvas1" style="display:none;">
     </canvas>
     <div class="center">
@@ -52,9 +78,13 @@
         <button id="scaleBtn">Apply</button>
       </div>
       <div>
+<<<<<<< HEAD
         <label> Rotate </label><br>
         <label> angle </label><input id="rotateAngle" type="number" min="0"><br>
         <button id="rotateBtn">Apply</button>
+=======
+        <button id="openModal">Zoom</button>
+>>>>>>> origin/master
       </div>
       <div>
         <button id="save"> Save file</button>

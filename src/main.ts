@@ -6,6 +6,7 @@ declare var saveAs: any;
 let file: File;
 let bmp: Bitmap;
 let canvas: any = document.getElementById("canvas1");
+let modal: HTMLElement = document.getElementById("myModal");
 let properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement];
 let histogram_r: any = document.getElementById("histogram_r");
 let histogram_g: any = document.getElementById("histogram_g");
@@ -110,6 +111,39 @@ document.getElementById("umbralization").addEventListener("click" , () => {
 document.getElementById("save").addEventListener("click", () => {
   bmp.saveFile((file: Blob) => {
     saveAs(file, "image.bmp");
+  });
+});
+// open modal
+document.getElementById("openModal").addEventListener("click", () => {
+  modal.style.display = "block";
+  /*span to close*/
+  document.getElementsByClassName("close")[0].addEventListener("click", () => {
+    modal.style.display = "none";
+    (<HTMLInputElement>document.getElementById("inputRange")).value = "1";
+    (<HTMLCanvasElement>document.getElementById("zoomedCanvas")).height = 0;
+    (<HTMLCanvasElement>document.getElementById("zoomedCanvas")).width = 0;
+  });
+  /*click outside modal to close*/
+  window.addEventListener("click", () => {
+    if (event.target === modal) {
+        (<HTMLInputElement>document.getElementById("inputRange")).value = "1";
+        modal.style.display = "none";
+        (<HTMLCanvasElement>document.getElementById("zoomedCanvas")).height = 0;
+        (<HTMLCanvasElement>document.getElementById("zoomedCanvas")).width = 0;
+    }
+  });
+  /* show original canvas*/
+  bmp.drawOnCanvas(<HTMLCanvasElement>document.getElementById("originalCanvas"));
+
+  document.getElementById("inputRange").addEventListener("change", () => {
+    let input: number = +(<HTMLInputElement>document.getElementById("inputRange")).value;
+    // zoom image
+    bmp.drawOnCanvas(<HTMLCanvasElement>document.getElementById("originalCanvas"));
+    if ((<HTMLInputElement> document.getElementsByName("algorithm")[0]).checked) {
+      bmp.drawOnCanvasWithZoom(<HTMLCanvasElement>document.getElementById("zoomedCanvas"), input, "neighbor");
+    } else {
+      bmp.drawOnCanvasWithZoom(<HTMLCanvasElement>document.getElementById("zoomedCanvas"), input, "interpolation");
+    }
   });
 });
 // scale

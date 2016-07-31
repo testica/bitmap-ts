@@ -625,7 +625,6 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             this._bitmap.current.data = this._transform.scale(owidth, oheight, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             this._bitmap.current.width = owidth;
             this._bitmap.current.height = oheight;
-            console.log(this._bitmap.current);
         };
         Bitmap.prototype.rotate = function (angle) {
             //Calcular el nuevo width y height
@@ -697,6 +696,46 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             var ctx = canvas.getContext("2d");
             var imageData = ctx.createImageData(width, height);
             imageData.data.set(this._bitmap.current.data);
+            ctx.clearRect(0, 0, width, height);
+            ctx.putImageData(imageData, 0, 0);
+        };
+        Bitmap.prototype.drawOnCanvasWithZoom = function (canvas, zoom, algorithm) {
+            var imageZoomed;
+            if (algorithm === "neighbor")
+                this._transform.setNeighbor();
+            if (algorithm === "interpolation")
+                this._transform.setInterpolation();
+            imageZoomed = this._transform.scale(this._bitmap.current.width * zoom, this._bitmap.current.height * zoom, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            var cropWidth = [0, 0];
+            var cropHeight = [0, 0];
+            cropWidth[0] = Math.floor(this._bitmap.current.width * zoom / 2) - Math.floor(this._bitmap.current.width / 2);
+            cropWidth[1] = Math.floor(this._bitmap.current.width * zoom / 2) + Math.round(this._bitmap.current.width / 2);
+            cropHeight[0] = Math.floor(this._bitmap.current.height * zoom / 2) - Math.floor(this._bitmap.current.height / 2);
+            cropHeight[1] = Math.round(this._bitmap.current.height * zoom / 2) + Math.round(this._bitmap.current.height / 2);
+            var pos = 0;
+            var imageCropped = new Uint8ClampedArray(this._bitmap.current.width * this._bitmap.current.height * 4);
+            for (var y = cropHeight[0]; y < cropHeight[1]; y++) {
+                for (var x = cropWidth[0]; x < cropWidth[1]; x++) {
+                    var location_7 = y * (this._bitmap.current.width * zoom) * 4 + x * 4;
+                    imageCropped[pos++] = imageZoomed[location_7];
+                    imageCropped[pos++] = imageZoomed[location_7 + 1];
+                    imageCropped[pos++] = imageZoomed[location_7 + 2];
+                    imageCropped[pos++] = 0xFF;
+                }
+            }
+            var width = this._bitmap.current.width;
+            var height = this._bitmap.current.height;
+            canvas.style.display = "block";
+            canvas.height = height;
+            canvas.width = width;
+            if ((height / width) > 1)
+                canvas.style.width = (15 / (height / width)).toString() + "%";
+            else {
+                canvas.style.width = "15%";
+            }
+            var ctx = canvas.getContext("2d");
+            var imageData = ctx.createImageData(width, height);
+            imageData.data.set(imageCropped);
             ctx.clearRect(0, 0, width, height);
             ctx.putImageData(imageData, 0, 0);
         };

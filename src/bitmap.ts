@@ -677,7 +677,6 @@ export class Bitmap {
     this._bitmap.current.data = this._transform.scale(owidth, oheight, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
     this._bitmap.current.width = owidth;
     this._bitmap.current.height = oheight;
-    console.log(this._bitmap.current);
   }
 
 
@@ -761,6 +760,52 @@ export class Bitmap {
       ctx.putImageData(imageData, 0, 0);
 
 
+  }
+
+  public drawOnCanvasWithZoom(canvas: HTMLCanvasElement, zoom: number, algorithm: string) {
+    let imageZoomed: Uint8ClampedArray;
+    if (algorithm === "neighbor")
+      this._transform.setNeighbor();
+
+    if (algorithm === "interpolation")
+      this._transform.setInterpolation();
+
+    imageZoomed = this._transform.scale(this._bitmap.current.width * zoom, this._bitmap.current.height * zoom, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    // crop center
+    let cropWidth: [number, number] = [0, 0];
+    let cropHeight: [number, number] = [0, 0];
+    cropWidth[0] = Math.floor(this._bitmap.current.width * zoom / 2) - Math.floor(this._bitmap.current.width / 2);
+    cropWidth[1] = Math.floor(this._bitmap.current.width * zoom / 2) + Math.round(this._bitmap.current.width / 2);
+    cropHeight[0] = Math.floor(this._bitmap.current.height * zoom / 2) - Math.floor(this._bitmap.current.height / 2);
+    cropHeight[1] = Math.round(this._bitmap.current.height * zoom / 2) + Math.round(this._bitmap.current.height / 2);
+
+    let pos: number = 0;
+    let imageCropped: Uint8ClampedArray = new Uint8ClampedArray(this._bitmap.current.width * this._bitmap.current.height * 4);
+    for (let y: number = cropHeight[0]; y < cropHeight[1]; y++ ) {
+      for (let x: number = cropWidth[0]; x < cropWidth[1]; x++ ) {
+        let location: number = y * (this._bitmap.current.width * zoom) * 4 + x * 4;
+        imageCropped[pos++] = imageZoomed[location];
+        imageCropped[pos++] = imageZoomed[location + 1];
+        imageCropped[pos++] = imageZoomed[location + 2];
+        imageCropped[pos++] = 0xFF;
+      }
+    }
+    /* drawing !*/
+    let width: number = this._bitmap.current.width;
+    let height: number = this._bitmap.current.height;
+    canvas.style.display = "block";
+    canvas.height = height;
+    canvas.width = width;
+    if ( (height / width)  > 1)
+      canvas.style.width = (15 / (height / width)).toString() + "%";
+    else {
+      canvas.style.width = "15%";
+    }
+    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+    let imageData: ImageData = ctx.createImageData(width, height);
+    imageData.data.set(imageCropped);
+    ctx.clearRect(0, 0, width , height);
+    ctx.putImageData(imageData, 0, 0);
   }
 
 
