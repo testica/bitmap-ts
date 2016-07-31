@@ -104,17 +104,17 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             saveAs(file, "image.bmp");
         });
     });
-<<<<<<< HEAD
-    // scale
-=======
+    // open modal
     document.getElementById("openModal").addEventListener("click", function () {
         modal.style.display = "block";
+        /*span to close*/
         document.getElementsByClassName("close")[0].addEventListener("click", function () {
             modal.style.display = "none";
             document.getElementById("inputRange").value = "1";
             document.getElementById("zoomedCanvas").height = 0;
             document.getElementById("zoomedCanvas").width = 0;
         });
+        /*click outside modal to close*/
         window.addEventListener("click", function () {
             if (event.target === modal) {
                 document.getElementById("inputRange").value = "1";
@@ -123,9 +123,11 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
                 document.getElementById("zoomedCanvas").width = 0;
             }
         });
+        /* show original canvas*/
         bmp.drawOnCanvas(document.getElementById("originalCanvas"));
         document.getElementById("inputRange").addEventListener("change", function () {
             var input = +document.getElementById("inputRange").value;
+            // zoom image
             bmp.drawOnCanvas(document.getElementById("originalCanvas"));
             if (document.getElementsByName("algorithm")[0].checked) {
                 bmp.drawOnCanvasWithZoom(document.getElementById("zoomedCanvas"), input, "neighbor");
@@ -135,7 +137,7 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             }
         });
     });
->>>>>>> origin/master
+    // scale
     document.getElementById("scaleBtn").addEventListener("click", function () {
         var scaleWidth = +document.getElementById("scaleWidth").value;
         var scaleHeight = +document.getElementById("scaleHeight").value;

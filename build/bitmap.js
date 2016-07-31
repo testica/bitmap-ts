@@ -706,6 +706,7 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             if (algorithm === "interpolation")
                 this._transform.setInterpolation();
             imageZoomed = this._transform.scale(this._bitmap.current.width * zoom, this._bitmap.current.height * zoom, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            // crop center
             var cropWidth = [0, 0];
             var cropHeight = [0, 0];
             cropWidth[0] = Math.floor(this._bitmap.current.width * zoom / 2) - Math.floor(this._bitmap.current.width / 2);
@@ -723,6 +724,7 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
                     imageCropped[pos++] = 0xFF;
                 }
             }
+            /* drawing !*/
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
             canvas.style.display = "block";
