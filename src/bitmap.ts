@@ -680,31 +680,31 @@ export class Bitmap {
   }
 
 
-  public rotate(angle:number) {
+  public rotate(angle: number) {
 
-    //Calcular el nuevo width y height
-    //Calcular el desplazamiento
+    // Calcular el nuevo width y height
+    // Calcular el desplazamiento
     this._rotateAngle += angle;
     let iwidth = this._bitmap.infoHeader.width;
     let iheight = this._bitmap.infoHeader.height;
-    let coseno:number = Math.cos(this._rotateAngle);
-    let seno:number = Math.sin(this._rotateAngle);
+    let coseno: number = Math.cos(this._rotateAngle);
+    let seno: number = Math.sin(this._rotateAngle);
 
-    let x1,x2,x3,x4,y1,y2,y3,y4:number;
+    let x1, x2, x3, x4, y1, y2, y3, y4: number;
     x1 = 0; y1 = 0; // (0,0)
-    x2 = Math.floor((iwidth-1)*coseno); y2 = Math.floor(-(iwidth -1)*seno); // (iwidth-1,0)
-    x3 = Math.floor((iheight-1)*seno); y3 = Math.floor((iheight-1)*coseno); // (0,iheight-1)
-    x4 = Math.floor((iwidth-1)*coseno + (iheight-1)*seno); y4 = Math.floor(-(iwidth-1)*seno + (iheight-1)*coseno); // (iwidht-1,iheight-1)
+    x2 = Math.floor((iwidth - 1) * coseno); y2 = Math.floor(-(iwidth - 1) * seno); // (iwidth-1,0)
+    x3 = Math.floor((iheight - 1) * seno); y3 = Math.floor((iheight - 1) * coseno); // (0,iheight-1)
+    x4 = Math.floor((iwidth - 1) * coseno + (iheight - 1) * seno); y4 = Math.floor(-(iwidth - 1) * seno + (iheight - 1) * coseno); // (iwidht-1,iheight-1)
 
-    let minX , maxX , minY , maxY , dx , dy:number;
+    let minX , maxX , minY , maxY , dx , dy: number;
 
-    minX = Math.min(x1,x2,x3,x4);
-    maxX = Math.max(x1,x2,x3,x4);
-    minY = Math.min(y1,y2,y3,y4);
-    maxY = Math.max(y1,y2,y3,y4);
+    minX = Math.min(x1, x2, x3, x4);
+    maxX = Math.max(x1, x2, x3, x4);
+    minY = Math.min(y1, y2, y3, y4);
+    maxY = Math.max(y1, y2, y3, y4);
 
-    let owidth:number = maxX - minX + 1;
-    let oheight:number = maxY - minY + 1;
+    let owidth: number = maxX - minX + 1;
+    let oheight: number = maxY - minY + 1;
 
     dx = minX;
     dy = minY;

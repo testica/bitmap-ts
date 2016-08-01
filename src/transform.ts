@@ -99,21 +99,20 @@ export class Transform {
     return data;
   }
 
-  public rotate(angle:number, owidth: number, oheight: number, dx: number, dy: number, currentData: Uint8ClampedArray, iwidth: number, iheight: number): Uint8ClampedArray {
+  public rotate(angle: number, owidth: number, oheight: number, dx: number, dy: number, currentData: Uint8ClampedArray, iwidth: number, iheight: number): Uint8ClampedArray {
     let data: any = new Uint8ClampedArray(owidth * oheight * 4);
     let ilocation: number;
-    let coseno:number = Math.cos(-angle);
-    let seno:number = Math.sin(-angle);
+    let coseno: number = Math.cos(-angle);
+    let seno: number = Math.sin(-angle);
 
     let x1: number, x2: number, y1: number, y2: number;
     for (let y: number = 0; y < oheight; y++) {
       for (let x: number = 0; x < owidth; x++) {
         let olocation: number = y * owidth * 4 + x * 4;
-        let ix: number = (x + dx)*coseno + (y+dy)*seno + 1e-5;
-        let iy: number = -(x + dx)*seno + (y + dy)*coseno + 1e-5;
+        let ix: number = (x + dx) * coseno + (y + dy) * seno + 1e-5;
+        let iy: number = -(x + dx) * seno + (y + dy) * coseno + 1e-5;
 
-        if ( ix >= 0 && ix <= iwidth && iy >= 0 && iy <= iheight)
-        {
+        if ( ix >= 0 && ix <= iwidth && iy >= 0 && iy <= iheight) {
           // 4 nearest neighbors
           let neighbor: Array<[number, number]> = this.neighbor2x2([ix, iy], iwidth - 1, iheight - 1);
           x2 = neighbor[1][0];
@@ -122,7 +121,7 @@ export class Transform {
           y1 = neighbor[0][1];
           let fixed: number = (1 / ((x2 - x1) * (y2 - y1)));
           let neighborColors: RGBA[] = [new RGBA(), new RGBA(), new RGBA(), new RGBA()];
-          // fill neighborColors        
+          // fill neighborColors
           for (let n: number = 0; n < 4; n ++) {
             ilocation = neighbor[n][1] * iwidth * 4 + neighbor[n][0] * 4;
             neighborColors[n].r = currentData[ilocation];
@@ -152,12 +151,11 @@ export class Transform {
           data[olocation + 2] =  Math.floor(finalPixel.b);
           data[olocation + 3] =  0xFF;
         }
-        else
-        {
+        else {
           data[olocation] = 0x00;
           data[olocation + 1] = 0x00;
           data[olocation + 2] = 0x00;
-          data[olocation + 3] = 0xFF; 
+          data[olocation + 3] = 0xFF;
         }
       }
     }

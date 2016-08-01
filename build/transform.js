@@ -16,14 +16,6 @@ define(["require", "exports"], function (require, exports) {
         function Transform() {
             this.algorithmType = Algorithm.Neighbor;
         }
-        /* Scale function
-         * oheight -> output height
-         * owidth -> output widht
-         * currentData -> current array of pixels
-         * iheight -> input height
-         * iwidth -> input widht
-         * return new array of pixels (scaled image)
-         */
         Transform.prototype.scale = function (owidth, oheight, currentData, iwidth, iheight) {
             switch (this.algorithmType) {
                 case Algorithm.Neighbor:
@@ -39,7 +31,6 @@ define(["require", "exports"], function (require, exports) {
             for (var y = 0; y < oheight; y++) {
                 for (var x = 0; x < owidth; x++) {
                     var olocation = y * owidth * 4 + x * 4;
-                    // nearest neighbor for each axis
                     var ix = this.neighbor(x / cx, iwidth - 1);
                     var iy = this.neighbor(y / cy, iheight - 1);
                     var ilocation = iy * iwidth * 4 + ix * 4;
@@ -62,7 +53,6 @@ define(["require", "exports"], function (require, exports) {
                     var olocation = y * owidth * 4 + x * 4;
                     var ix = (x / cx);
                     var iy = (y / cy);
-                    // 4 nearest neighbors
                     var neighbor = this.neighbor2x2([ix, iy], iwidth - 1, iheight - 1);
                     x2 = neighbor[1][0];
                     x1 = neighbor[0][0];
@@ -70,7 +60,6 @@ define(["require", "exports"], function (require, exports) {
                     y1 = neighbor[0][1];
                     var fixed = (1 / ((x2 - x1) * (y2 - y1)));
                     var neighborColors = [new RGBA(), new RGBA(), new RGBA(), new RGBA()];
-                    // fill neighborColors
                     for (var n = 0; n < 4; n++) {
                         ilocation = neighbor[n][1] * iwidth * 4 + neighbor[n][0] * 4;
                         neighborColors[n].r = currentData[ilocation];
@@ -78,7 +67,6 @@ define(["require", "exports"], function (require, exports) {
                         neighborColors[n].b = currentData[ilocation + 2];
                     }
                     var finalPixel = new RGBA();
-                    // Doing interpolation for each color!
                     finalPixel.r = fixed * ((neighborColors[0].r * (x2 - ix) * (y2 - iy)) +
                         (neighborColors[1].r * (ix - x1) * (y2 - iy)) +
                         (neighborColors[2].r * (x2 - ix) * (iy - y1)) +
@@ -111,7 +99,6 @@ define(["require", "exports"], function (require, exports) {
                     var ix = (x + dx) * coseno + (y + dy) * seno + 1e-5;
                     var iy = -(x + dx) * seno + (y + dy) * coseno + 1e-5;
                     if (ix >= 0 && ix <= iwidth && iy >= 0 && iy <= iheight) {
-                        // 4 nearest neighbors
                         var neighbor = this.neighbor2x2([ix, iy], iwidth - 1, iheight - 1);
                         x2 = neighbor[1][0];
                         x1 = neighbor[0][0];
@@ -119,7 +106,6 @@ define(["require", "exports"], function (require, exports) {
                         y1 = neighbor[0][1];
                         var fixed = (1 / ((x2 - x1) * (y2 - y1)));
                         var neighborColors = [new RGBA(), new RGBA(), new RGBA(), new RGBA()];
-                        // fill neighborColors        
                         for (var n = 0; n < 4; n++) {
                             ilocation = neighbor[n][1] * iwidth * 4 + neighbor[n][0] * 4;
                             neighborColors[n].r = currentData[ilocation];
@@ -127,7 +113,6 @@ define(["require", "exports"], function (require, exports) {
                             neighborColors[n].b = currentData[ilocation + 2];
                         }
                         var finalPixel = new RGBA();
-                        // Doing interpolation to each color!
                         finalPixel.r = fixed * ((neighborColors[0].r * (x2 - ix) * (y2 - iy)) +
                             (neighborColors[1].r * (ix - x1) * (y2 - iy)) +
                             (neighborColors[2].r * (x2 - ix) * (iy - y1)) +
@@ -162,13 +147,10 @@ define(["require", "exports"], function (require, exports) {
             return Math.floor(value + 0.5);
         };
         Transform.prototype.neighbor2x2 = function (value, xmax, ymax) {
-            // Asumming that image is greater or equal to 2x2
-            // Find 4 Nearest neighbor
             var upleft = [Math.floor(value[0]), Math.floor(value[1])];
             var upright = [Math.floor(value[0]) + 1, Math.floor(value[1])];
             var downleft = [Math.floor(value[0]), Math.floor(value[1]) + 1];
             var downright = [Math.floor(value[0]) + 1, Math.floor(value[1]) + 1];
-            // resolving y limits
             if (Math.floor(value[1]) === 0) {
                 upleft[1] = 0;
                 upright[1] = 0;
@@ -181,7 +163,6 @@ define(["require", "exports"], function (require, exports) {
                 downleft[1] = ymax;
                 downright[1] = ymax;
             }
-            // resolving x limits
             if (Math.floor(value[0]) === 0) {
                 upleft[0] = 0;
                 upright[0] = 1;
@@ -196,11 +177,9 @@ define(["require", "exports"], function (require, exports) {
             }
             return new Array(upleft, upright, downleft, downright);
         };
-        // SET Algorithm type to Nearest Neighbor
         Transform.prototype.setNeighbor = function () {
             this.algorithmType = Algorithm.Neighbor;
         };
-        // SET Algorithm type to Bi-linear Interpolation
         Transform.prototype.setInterpolation = function () {
             this.algorithmType = Algorithm.Interpolation;
         };
