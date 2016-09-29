@@ -58,6 +58,7 @@ export class Filter {
     let halfh: number = Math.floor(this.kernel.height / 2);
     // console.log({halfw: halfw, halfh: halfh, x: index[0], y: index[1], matrix: matrix.slice(0)});
     // LEFT LIMIT
+    /*
     if (index[0] < halfw) {
       // set center
       let center: RGB = new RGB();
@@ -237,10 +238,18 @@ export class Filter {
       }
     }
     // console.log("go to rest!");
-    for (let x: number = 1; x <= halfw ; x++) {
-      for (let y: number = 1; y <= halfh ; y++) {
+    */
+
+    for (let x: number = 0; x <= halfw ; x++) {
+      for (let y: number = 0; y <= halfh ; y++) {
         let neighbor: RGB[] = new Array<RGB>(4);
         let pixel: RGB = new RGB();
+        // center
+        if ( x === 0 && y === 0) {
+          let location: number = index[1] * width * 4 + index[0] * 4;
+          neighbor[0] = new RGB(image[location], image[location + 1], image[location + 2]);
+          matrix[halfh * this.kernel.width + halfw] = neighbor[0];
+        } else {
         // left-top
         if (index[1] - y < 0 || index[0] - x < 0) {
           neighbor[0] = new RGB();
@@ -278,6 +287,7 @@ export class Filter {
         }
         matrix[(halfh + y) * this.kernel.width + (halfw + x) ] = neighbor[3];
         // console.log({x: x, y: y, matrix: matrix.slice(0)});
+        }
       }
     }
     return matrix;
