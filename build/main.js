@@ -134,4 +134,9 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.rotate((rotateAngle * Math.PI) / 180);
         bmp.drawOnCanvas(canvas);
     });
+    document.getElementById("boxBlur").addEventListener("click", function () {
+        bmp.kernel(3, 3);
+        bmp.blur("box");
+        bmp.drawOnCanvas(canvas);
+    });
 });
