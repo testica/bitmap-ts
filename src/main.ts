@@ -168,3 +168,13 @@ document.getElementById("rotateBtn").addEventListener("click", () => {
   bmp.rotate((rotateAngle * Math.PI) / 180);
   bmp.drawOnCanvas(canvas);
 });
+
+// box blurring
+document.getElementById("boxBlur").addEventListener("click", () => {
+  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+
+  // interpolation algorithm
+  bmp.kernel(3, 3);
+  bmp.blur("box");
+  bmp.drawOnCanvas(canvas);
+});

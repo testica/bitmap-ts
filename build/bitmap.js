@@ -1,4 +1,4 @@
-define(["require", "exports", "./histogram", "./transform"], function (require, exports, histogram_1, transform_1) {
+define(["require", "exports", "./histogram", "./transform", "./filter"], function (require, exports, histogram_1, transform_1, filter_1) {
     "use strict";
     var RGBA = (function () {
         function RGBA() {
@@ -14,6 +14,7 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             this._bitmap = {};
             this._file = file;
             this._transform = new transform_1.Transform();
+            this._filter = new filter_1.Filter();
         }
         Bitmap.prototype.read = function (callback) {
             var _this = this;
@@ -638,6 +639,16 @@ define(["require", "exports", "./histogram", "./transform"], function (require, 
             this._bitmap.current.width = owidth;
             this._bitmap.current.height = oheight;
             console.log(this._bitmap.current);
+        };
+        Bitmap.prototype.kernel = function (width, height, customKernel) {
+            this._filter.setKernel(width, height);
+        };
+        Bitmap.prototype.blur = function (type) {
+            if (type === "box") {
+                this._bitmap.current.data = this._filter.blur(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            }
+            else if (type === "gauss") {
+            }
         };
         Bitmap.prototype.drawProperties = function (properties) {
             properties[0].innerHTML = this._bitmap.infoHeader.width;

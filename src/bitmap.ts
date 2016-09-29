@@ -1,5 +1,6 @@
 import {Histogram} from "./histogram";
 import {Transform} from "./transform";
+import {Filter} from "./filter";
 
 class RGBA {
   r: number;
@@ -21,12 +22,14 @@ export class Bitmap {
   private _grayScale = false;
   private _rotateAngle = 0;
   private _dataView: DataView;
+  private _filter: Filter;
 
   constructor(file: File) {
     this._histogram = new Histogram();
     this._bitmap = {};
     this._file = file;
     this._transform = new Transform();
+    this._filter = new Filter();
   }
 
   public read(callback: any) {
@@ -713,6 +716,20 @@ export class Bitmap {
     this._bitmap.current.width = owidth;
     this._bitmap.current.height = oheight;
     console.log(this._bitmap.current);
+  }
+
+  // set kernel
+  public kernel(width: number, height: number, customKernel?: number []) {
+    this._filter.setKernel(width, height);
+  }
+
+  public blur(type: string) {
+    if (type === "box") {
+      this._bitmap.current.data = this._filter.blur(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    }
+    else if (type === "gauss") {
+
+    }
   }
 
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
