@@ -24,6 +24,9 @@ export class Filter {
     if (type === 0) {
       // box method
       let normalize: number = 1 / (this.kernel.width * this.kernel.height);
+      for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
+        this.kernel.matrix[i] = normalize;
+      }
       for (let y: number = 0; y < height; y++) {
         for (let x: number = 0; x < width; x++) {
           let location: number = y * width * 4 + x * 4;
@@ -31,7 +34,44 @@ export class Filter {
           // do multiplication!
           let total: RGB = new RGB();
           for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
-            this.kernel.matrix[i] = normalize;
+            total.r += this.kernel.matrix[i] * neighbors[i].r;
+            total.g += this.kernel.matrix[i] * neighbors[i].g;
+            total.b += this.kernel.matrix[i] * neighbors[i].b;
+          }
+          if (total.r > 255) total.r = 255;
+          if (total.g > 255) total.g = 255;
+          if (total.b > 255) total.b = 255;
+          if (total.r < 0) total.r = 0;
+          if (total.g < 0) total.g = 0;
+          if (total.b < 0) total.b = 0;
+          data[location] = total.r;
+          data[location + 1] = total.g;
+          data[location + 2] = total.b;
+          data[location + 3] = 0xFF;
+        }
+      }
+    }
+    else if (type === 1) {
+      // gauss method
+      let pascal_row: number[] = [1];
+      for (let i: number = 0; i < this.kernel.width - 1; i++) {
+        pascal_row.push(pascal_row[i] * ((this.kernel.width - 1) - i) / (i + 1));
+      }
+      let sum: number = pascal_row.reduce((a, b) => a + b, 0);
+      let normalize: number = 1 / (sum * sum);
+      // fill kernel matrix normalized
+      for (let col: number = 0; col < this.kernel.width; col++) {
+        for (let row: number = 0; row < this.kernel.width; row++) {
+          this.kernel.matrix[this.kernel.width * col + row] = (pascal_row[row] * pascal_row[col]) * normalize;
+        }
+      }
+      for (let y: number = 0; y < height; y++) {
+        for (let x: number = 0; x < width; x++) {
+          let location: number = y * width * 4 + x * 4;
+          let neighbors: RGB [] = this.getNeighbors(image, width, height, [x, y]);
+          // do multiplication!
+          let total: RGB = new RGB();
+          for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
             total.r += this.kernel.matrix[i] * neighbors[i].r;
             total.g += this.kernel.matrix[i] * neighbors[i].g;
             total.b += this.kernel.matrix[i] * neighbors[i].b;

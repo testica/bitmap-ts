@@ -22,13 +22,15 @@ define(["require", "exports"], function (require, exports) {
             var data = new Uint8ClampedArray(width * height * 4);
             if (type === 0) {
                 var normalize = 1 / (this.kernel.width * this.kernel.height);
+                for (var i = 0; i < this.kernel.width * this.kernel.height; i++) {
+                    this.kernel.matrix[i] = normalize;
+                }
                 for (var y = 0; y < height; y++) {
                     for (var x = 0; x < width; x++) {
                         var location_1 = y * width * 4 + x * 4;
                         var neighbors = this.getNeighbors(image, width, height, [x, y]);
                         var total = new RGB();
                         for (var i = 0; i < this.kernel.width * this.kernel.height; i++) {
-                            this.kernel.matrix[i] = normalize;
                             total.r += this.kernel.matrix[i] * neighbors[i].r;
                             total.g += this.kernel.matrix[i] * neighbors[i].g;
                             total.b += this.kernel.matrix[i] * neighbors[i].b;
@@ -52,6 +54,47 @@ define(["require", "exports"], function (require, exports) {
                     }
                 }
             }
+            else if (type === 1) {
+                var pascal_row = [1];
+                for (var i = 0; i < this.kernel.width - 1; i++) {
+                    pascal_row.push(pascal_row[i] * ((this.kernel.width - 1) - i) / (i + 1));
+                }
+                var sum = pascal_row.reduce(function (a, b) { return a + b; }, 0);
+                var normalize = 1 / (sum * sum);
+                for (var col = 0; col < this.kernel.width; col++) {
+                    for (var row = 0; row < this.kernel.width; row++) {
+                        this.kernel.matrix[this.kernel.width * col + row] = (pascal_row[row] * pascal_row[col]) * normalize;
+                    }
+                }
+                for (var y = 0; y < height; y++) {
+                    for (var x = 0; x < width; x++) {
+                        var location_2 = y * width * 4 + x * 4;
+                        var neighbors = this.getNeighbors(image, width, height, [x, y]);
+                        var total = new RGB();
+                        for (var i = 0; i < this.kernel.width * this.kernel.height; i++) {
+                            total.r += this.kernel.matrix[i] * neighbors[i].r;
+                            total.g += this.kernel.matrix[i] * neighbors[i].g;
+                            total.b += this.kernel.matrix[i] * neighbors[i].b;
+                        }
+                        if (total.r > 255)
+                            total.r = 255;
+                        if (total.g > 255)
+                            total.g = 255;
+                        if (total.b > 255)
+                            total.b = 255;
+                        if (total.r < 0)
+                            total.r = 0;
+                        if (total.g < 0)
+                            total.g = 0;
+                        if (total.b < 0)
+                            total.b = 0;
+                        data[location_2] = total.r;
+                        data[location_2 + 1] = total.g;
+                        data[location_2 + 2] = total.b;
+                        data[location_2 + 3] = 0xFF;
+                    }
+                }
+            }
             return data;
         };
         Filter.prototype.getNeighbors = function (image, width, height, index) {
@@ -63,8 +106,8 @@ define(["require", "exports"], function (require, exports) {
                     var neighbor = new Array(4);
                     var pixel = new RGB();
                     if (x === 0 && y === 0) {
-                        var location_2 = index[1] * width * 4 + index[0] * 4;
-                        neighbor[0] = new RGB(image[location_2], image[location_2 + 1], image[location_2 + 2]);
+                        var location_3 = index[1] * width * 4 + index[0] * 4;
+                        neighbor[0] = new RGB(image[location_3], image[location_3 + 1], image[location_3 + 2]);
                         matrix[halfh * this.kernel.width + halfw] = neighbor[0];
                     }
                     else {
@@ -72,32 +115,32 @@ define(["require", "exports"], function (require, exports) {
                             neighbor[0] = new RGB();
                         }
                         else {
-                            var location_3 = (index[1] - y) * width * 4 + (index[0] - x) * 4;
-                            neighbor[0] = new RGB(image[location_3], image[location_3 + 1], image[location_3 + 2]);
+                            var location_4 = (index[1] - y) * width * 4 + (index[0] - x) * 4;
+                            neighbor[0] = new RGB(image[location_4], image[location_4 + 1], image[location_4 + 2]);
                         }
                         matrix[(halfh - y) * this.kernel.width + (halfw - x)] = neighbor[0];
                         if (index[1] - y < 0 || index[0] + x >= width) {
                             neighbor[1] = new RGB();
                         }
                         else {
-                            var location_4 = (index[1] - y) * width * 4 + (index[0] + x) * 4;
-                            neighbor[1] = new RGB(image[location_4], image[location_4 + 1], image[location_4 + 2]);
+                            var location_5 = (index[1] - y) * width * 4 + (index[0] + x) * 4;
+                            neighbor[1] = new RGB(image[location_5], image[location_5 + 1], image[location_5 + 2]);
                         }
                         matrix[(halfh - y) * this.kernel.width + (halfw + x)] = neighbor[1];
                         if (index[1] + y >= height || index[0] - x < 0) {
                             neighbor[2] = new RGB();
                         }
                         else {
-                            var location_5 = (index[1] + y) * width * 4 + (index[0] - x) * 4;
-                            neighbor[2] = new RGB(image[location_5], image[location_5 + 1], image[location_5 + 2]);
+                            var location_6 = (index[1] + y) * width * 4 + (index[0] - x) * 4;
+                            neighbor[2] = new RGB(image[location_6], image[location_6 + 1], image[location_6 + 2]);
                         }
                         matrix[(halfh + y) * this.kernel.width + (halfw - x)] = neighbor[2];
                         if (index[1] + y >= height || index[0] + x >= width) {
                             neighbor[3] = new RGB();
                         }
                         else {
-                            var location_6 = (index[1] + y) * width * 4 + (index[0] + x) * 4;
-                            neighbor[3] = new RGB(image[location_6], image[location_6 + 1], image[location_6 + 2]);
+                            var location_7 = (index[1] + y) * width * 4 + (index[0] + x) * 4;
+                            neighbor[3] = new RGB(image[location_7], image[location_7 + 1], image[location_7 + 2]);
                         }
                         matrix[(halfh + y) * this.kernel.width + (halfw + x)] = neighbor[3];
                     }

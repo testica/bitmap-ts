@@ -139,4 +139,9 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.blur("box");
         bmp.drawOnCanvas(canvas);
     });
+    document.getElementById("gaussBlur").addEventListener("click", function () {
+        bmp.kernel(3, 3);
+        bmp.blur("gauss");
+        bmp.drawOnCanvas(canvas);
+    });
 });

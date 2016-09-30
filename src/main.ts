@@ -177,3 +177,12 @@ document.getElementById("boxBlur").addEventListener("click", () => {
   bmp.blur("box");
   bmp.drawOnCanvas(canvas);
 });
+
+// box blurring
+document.getElementById("gaussBlur").addEventListener("click", () => {
+  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+
+  bmp.kernel(3, 3);
+  bmp.blur("gauss");
+  bmp.drawOnCanvas(canvas);
+});
