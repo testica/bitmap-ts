@@ -648,6 +648,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                 this._bitmap.current.data = this._filter.blur(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             }
             else if (type === "gauss") {
+                this._bitmap.current.data = this._filter.blur(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             }
         };
         Bitmap.prototype.drawProperties = function (properties) {
