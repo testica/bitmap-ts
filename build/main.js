@@ -135,21 +135,25 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("boxBlur").addEventListener("click", function () {
-        bmp.kernel(3, 3);
+        var input = +document.getElementById("inputKernel").value;
+        bmp.kernel(input, input);
         bmp.blur("box");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("gaussBlur").addEventListener("click", function () {
-        bmp.kernel(3, 3);
+        var input = +document.getElementById("inputKernel").value;
+        bmp.kernel(input, input);
         bmp.blur("gauss");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("prewittEdge").addEventListener("click", function () {
+        var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("prewitt");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("sobelEdge").addEventListener("click", function () {
+        var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("sobel");
         bmp.drawOnCanvas(canvas);

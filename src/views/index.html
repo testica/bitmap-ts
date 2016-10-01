@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
+    <!-- ZOOM MODAL -->
     <div id="myModal" class="modal">
 
       <!-- Modal content -->
@@ -32,6 +33,16 @@
       </div>
 
     </div>
+
+    <!-- CUSTOM FILTER MODAL -->
+    <div id="custom" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close">×</span>
+      </div>
+    </div>
+
     <canvas id="canvas1" style="display:none;">
     </canvas>
     <div class="center">
@@ -95,6 +106,17 @@
       </div>
       <hr>
       <div>
+        <label>Kernel: </label>
+        <select id="inputKernel">
+          <option value="3"> 3x3
+          <option value="5"> 5x5
+          <option value="7"> 7x7
+          <option value="9"> 9x9
+          <option value="11"> 11x11
+          <option value="13"> 13x13
+          <option value="15"> 15x15
+        </select>
+        &nbsp;&nbsp;||&nbsp;&nbsp;
         <label>Blur: </label>
         <button id="boxBlur">Box</button>
         <button id="gaussBlur">Gauss</button>
@@ -102,6 +124,8 @@
         <label>Edge: </label>
         <button id="prewittEdge">Prewitt</button>
         <button id="sobelEdge">Sobel</button>
+        &nbsp;|&nbsp;
+        <button id="customFilter">Custom</button>
 
       </div>
       <hr>

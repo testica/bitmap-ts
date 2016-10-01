@@ -171,34 +171,34 @@ document.getElementById("rotateBtn").addEventListener("click", () => {
 
 // box blurring
 document.getElementById("boxBlur").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
-  bmp.kernel(3, 3);
+  bmp.kernel(input, input);
   bmp.blur("box");
   bmp.drawOnCanvas(canvas);
 });
 
 // gauss blurring
 document.getElementById("gaussBlur").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
-  bmp.kernel(3, 3);
+  bmp.kernel(input, input);
   bmp.blur("gauss");
   bmp.drawOnCanvas(canvas);
 });
 
 // prewitt edge
 document.getElementById("prewittEdge").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
   bmp.kernel(3, 3);
   bmp.edge("prewitt");
   bmp.drawOnCanvas(canvas);
 });
 
-// prewitt edge
+// sobel edge
 document.getElementById("sobelEdge").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
   bmp.kernel(3, 3);
   bmp.edge("sobel");
