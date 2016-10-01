@@ -732,6 +732,15 @@ export class Bitmap {
     }
   }
 
+  public edge(type: string) {
+    if (type === "prewitt") {
+      this._bitmap.current.data = this._filter.edge(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    }
+    else if (type === "sobel") {
+      this._bitmap.current.data = this._filter.edge(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+    }
+  }
+
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
     properties[0].innerHTML = this._bitmap.infoHeader.width;
     properties[1].innerHTML = this._bitmap.infoHeader.height;

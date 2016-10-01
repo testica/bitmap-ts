@@ -651,6 +651,14 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                 this._bitmap.current.data = this._filter.blur(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             }
         };
+        Bitmap.prototype.edge = function (type) {
+            if (type === "prewitt") {
+                this._bitmap.current.data = this._filter.edge(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            }
+            else if (type === "sobel") {
+                this._bitmap.current.data = this._filter.edge(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            }
+        };
         Bitmap.prototype.drawProperties = function (properties) {
             properties[0].innerHTML = this._bitmap.infoHeader.width;
             properties[1].innerHTML = this._bitmap.infoHeader.height;

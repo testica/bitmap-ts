@@ -178,11 +178,29 @@ document.getElementById("boxBlur").addEventListener("click", () => {
   bmp.drawOnCanvas(canvas);
 });
 
-// box blurring
+// gauss blurring
 document.getElementById("gaussBlur").addEventListener("click", () => {
   // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
 
   bmp.kernel(3, 3);
   bmp.blur("gauss");
+  bmp.drawOnCanvas(canvas);
+});
+
+// prewitt edge
+document.getElementById("prewittEdge").addEventListener("click", () => {
+  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+
+  bmp.kernel(3, 3);
+  bmp.edge("prewitt");
+  bmp.drawOnCanvas(canvas);
+});
+
+// prewitt edge
+document.getElementById("sobelEdge").addEventListener("click", () => {
+  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+
+  bmp.kernel(3, 3);
+  bmp.edge("sobel");
   bmp.drawOnCanvas(canvas);
 });
