@@ -18,7 +18,7 @@ export class Filter {
   constructor() {
     this.setKernel(3, 3);
   }
-
+  // BLUR FILTER
   public blur(type: number, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
     let data: any = new Uint8ClampedArray(width * height * 4);
     if (type === 0) {
@@ -90,6 +90,98 @@ export class Filter {
       }
     }
     return data;
+  }
+
+  // EDGE FILTER
+  public edge(type: number, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
+    let data: any = new Uint8ClampedArray(width * height * 4);
+    // prewitt method
+    if (type === 0) {
+      let kernelx: number[] = new Array<number>(9);
+      kernelx = [-1, 0, 1, -1, 0, 1, -1, 0, 1];
+      let kernely: number[] = new Array<number>(9);
+      kernely = [-1, -1, -1, 0, 0, 0, 1, 1, 1];
+      for (let y: number = 0; y < height; y++) {
+        for (let x: number = 0; x < width; x++) {
+          let location: number = y * width * 4 + x * 4;
+          let neighbors: RGB [] = this.getNeighbors(image, width, height, [x, y]);
+          // do multiplication!
+          let totalx: RGB = new RGB();
+          let totaly: RGB = new RGB();
+          for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
+            totalx.r += kernelx[i] * neighbors[i].r;
+            totalx.g += kernelx[i] * neighbors[i].g;
+            totalx.b += kernelx[i] * neighbors[i].b;
+
+            totaly.r += kernely[i] * neighbors[i].r;
+            totaly.g += kernely[i] * neighbors[i].g;
+            totaly.b += kernely[i] * neighbors[i].b;
+          }
+
+          let gradient: RGB = new RGB(
+            Math.abs(totalx.r) + Math.abs(totaly.r),
+            Math.abs(totalx.g) + Math.abs(totaly.g),
+            Math.abs(totalx.b) + Math.abs(totaly.b)
+          );
+
+          gradient.r = this.truncate(gradient.r);
+          gradient.g = this.truncate(gradient.g);
+          gradient.b = this.truncate(gradient.b);
+
+          data[location] = gradient.r;
+          data[location + 1] = gradient.g;
+          data[location + 2] = gradient.b;
+          data[location + 3] = 0xFF;
+        }
+      }
+    }
+    // sobel method
+    else if (type === 1) {
+      let kernelx: number[] = new Array<number>(9);
+      kernelx = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+      let kernely: number[] = new Array<number>(9);
+      kernely = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+      for (let y: number = 0; y < height; y++) {
+        for (let x: number = 0; x < width; x++) {
+          let location: number = y * width * 4 + x * 4;
+          let neighbors: RGB [] = this.getNeighbors(image, width, height, [x, y]);
+          // do multiplication!
+          let totalx: RGB = new RGB();
+          let totaly: RGB = new RGB();
+          for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
+            totalx.r += kernelx[i] * neighbors[i].r;
+            totalx.g += kernelx[i] * neighbors[i].g;
+            totalx.b += kernelx[i] * neighbors[i].b;
+
+            totaly.r += kernely[i] * neighbors[i].r;
+            totaly.g += kernely[i] * neighbors[i].g;
+            totaly.b += kernely[i] * neighbors[i].b;
+          }
+
+          let gradient: RGB = new RGB(
+            Math.abs(totalx.r) + Math.abs(totaly.r),
+            Math.abs(totalx.g) + Math.abs(totaly.g),
+            Math.abs(totalx.b) + Math.abs(totaly.b)
+          );
+
+          gradient.r = this.truncate(gradient.r);
+          gradient.g = this.truncate(gradient.g);
+          gradient.b = this.truncate(gradient.b);
+
+          data[location] = gradient.r;
+          data[location + 1] = gradient.g;
+          data[location + 2] = gradient.b;
+          data[location + 3] = 0xFF;
+        }
+      }
+    }
+    return data;
+  }
+
+  private truncate(value: number): number {
+    if (value < 0) value = 0;
+    if (value > 255) value = 255;
+    return value;
   }
   private getNeighbors(image: Uint8ClampedArray, width: number, height: number, index: [number, number]): RGB[] {
     let matrix: RGB [] = new Array<RGB>(this.kernel.width * this.kernel.height );
