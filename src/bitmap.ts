@@ -720,7 +720,12 @@ export class Bitmap {
 
   // set kernel
   public kernel(width: number, height: number, customKernel?: number []) {
-    this._filter.setKernel(width, height);
+    if (customKernel) {
+      this._filter.setKernel(width, height, customKernel);
+    } else {
+      this._filter.setKernel(width, height);
+    }
+
   }
 
   public blur(type: string) {
@@ -739,6 +744,10 @@ export class Bitmap {
     else if (type === "sobel") {
       this._bitmap.current.data = this._filter.edge(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
     }
+  }
+
+  public customFilter() {
+    this._bitmap.current.data = this._filter.custom(this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
   }
 
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {

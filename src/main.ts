@@ -204,3 +204,39 @@ document.getElementById("sobelEdge").addEventListener("click", () => {
   bmp.edge("sobel");
   bmp.drawOnCanvas(canvas);
 });
+
+// custom filter
+document.getElementById("customFilter").addEventListener("click", () => {
+
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
+  let matrix: HTMLElement = <HTMLElement>document.querySelector("#kernelMatrix");
+  matrix.innerHTML = "";
+  for (let y: number = 0; y < input; y++) {
+    let row: string = "";
+    for (let x: number = 0; x < input; x++) {
+      row += "<th><input type='number' id='matrix" + (y * input + x) + "' value=1></th>";
+    }
+    let tr: HTMLElement = document.createElement("tr");
+    tr.innerHTML = row;
+    matrix.appendChild(tr);
+  }
+  document.getElementById("custom").style.display = "block";
+  // close
+  document.getElementsByClassName("close")[1].addEventListener("click", () => {
+    document.getElementById("custom").style.display = "none";
+  });
+
+  // apply filter
+  document.getElementById("btnCustom").addEventListener("click", () => {
+    let custom: number[] = new Array<number>(input * input);
+    for (let y: number = 0; y < input; y++) {
+      for (let x: number = 0; x < input; x++) {
+        custom[y * input + x] = +(<HTMLInputElement>document.getElementById("matrix" + (y * input + x))).value;
+      }
+    }
+    document.getElementById("custom").style.display = "none";
+    bmp.kernel(input, input, custom);
+    bmp.customFilter();
+    bmp.drawOnCanvas(canvas);
+  });
+});
