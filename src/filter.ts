@@ -178,6 +178,32 @@ export class Filter {
     return data;
   }
 
+  public custom(image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
+    let data: any = new Uint8ClampedArray(width * height * 4);
+    for (let y: number = 0; y < height; y++) {
+      for (let x: number = 0; x < width; x++) {
+        let location: number = y * width * 4 + x * 4;
+        let neighbors: RGB [] = this.getNeighbors(image, width, height, [x, y]);
+        // do multiplication!
+        let total: RGB = new RGB();
+        for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
+          total.r += this.kernel.matrix[i] * neighbors[i].r;
+          total.g += this.kernel.matrix[i] * neighbors[i].g;
+          total.b += this.kernel.matrix[i] * neighbors[i].b;
+        }
+        total.r = this.truncate(total.r);
+        total.g = this.truncate(total.g);
+        total.b = this.truncate(total.b);
+
+        data[location] = total.r;
+        data[location + 1] = total.g;
+        data[location + 2] = total.b;
+        data[location + 3] = 0xFF;
+      }
+    }
+    return data;
+  }
+
   private truncate(value: number): number {
     if (value < 0) value = 0;
     if (value > 255) value = 255;
@@ -425,12 +451,11 @@ export class Filter {
     return matrix;
   }
   public setKernel (width: number, height: number, customKernel?: number []) {
+    this.kernel.height = height;
+    this.kernel.width = width;
+    this.kernel.matrix = new Array<number>(height * width);
     if (customKernel) {
-      // load custom kernel
-    } else {
-      this.kernel.height = height;
-      this.kernel.width = width;
-      this.kernel.matrix = new Array<number>(height * width);
+      this.kernel.matrix = customKernel;
     }
   }
 }

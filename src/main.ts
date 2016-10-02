@@ -171,36 +171,72 @@ document.getElementById("rotateBtn").addEventListener("click", () => {
 
 // box blurring
 document.getElementById("boxBlur").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
-  bmp.kernel(3, 3);
+  bmp.kernel(input, input);
   bmp.blur("box");
   bmp.drawOnCanvas(canvas);
 });
 
 // gauss blurring
 document.getElementById("gaussBlur").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
-  bmp.kernel(3, 3);
+  bmp.kernel(input, input);
   bmp.blur("gauss");
   bmp.drawOnCanvas(canvas);
 });
 
 // prewitt edge
 document.getElementById("prewittEdge").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
   bmp.kernel(3, 3);
   bmp.edge("prewitt");
   bmp.drawOnCanvas(canvas);
 });
 
-// prewitt edge
+// sobel edge
 document.getElementById("sobelEdge").addEventListener("click", () => {
-  // let kernel: number = + (<HTMLInputElement>document.getElementById("rotateAngle")).value;
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
   bmp.kernel(3, 3);
   bmp.edge("sobel");
   bmp.drawOnCanvas(canvas);
+});
+
+// custom filter
+document.getElementById("customFilter").addEventListener("click", () => {
+
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
+  let matrix: HTMLElement = <HTMLElement>document.querySelector("#kernelMatrix");
+  matrix.innerHTML = "";
+  for (let y: number = 0; y < input; y++) {
+    let row: string = "";
+    for (let x: number = 0; x < input; x++) {
+      row += "<th><input type='number' id='matrix" + (y * input + x) + "' value=1></th>";
+    }
+    let tr: HTMLElement = document.createElement("tr");
+    tr.innerHTML = row;
+    matrix.appendChild(tr);
+  }
+  document.getElementById("custom").style.display = "block";
+  // close
+  document.getElementsByClassName("close")[1].addEventListener("click", () => {
+    document.getElementById("custom").style.display = "none";
+  });
+
+  // apply filter
+  document.getElementById("btnCustom").addEventListener("click", () => {
+    let custom: number[] = new Array<number>(input * input);
+    for (let y: number = 0; y < input; y++) {
+      for (let x: number = 0; x < input; x++) {
+        custom[y * input + x] = +(<HTMLInputElement>document.getElementById("matrix" + (y * input + x))).value;
+      }
+    }
+    document.getElementById("custom").style.display = "none";
+    bmp.kernel(input, input, custom);
+    bmp.customFilter();
+    bmp.drawOnCanvas(canvas);
+  });
 });

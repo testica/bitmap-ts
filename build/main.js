@@ -135,23 +135,57 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("boxBlur").addEventListener("click", function () {
-        bmp.kernel(3, 3);
+        var input = +document.getElementById("inputKernel").value;
+        bmp.kernel(input, input);
         bmp.blur("box");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("gaussBlur").addEventListener("click", function () {
-        bmp.kernel(3, 3);
+        var input = +document.getElementById("inputKernel").value;
+        bmp.kernel(input, input);
         bmp.blur("gauss");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("prewittEdge").addEventListener("click", function () {
+        var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("prewitt");
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("sobelEdge").addEventListener("click", function () {
+        var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("sobel");
         bmp.drawOnCanvas(canvas);
+    });
+    document.getElementById("customFilter").addEventListener("click", function () {
+        var input = +document.getElementById("inputKernel").value;
+        var matrix = document.querySelector("#kernelMatrix");
+        matrix.innerHTML = "";
+        for (var y = 0; y < input; y++) {
+            var row = "";
+            for (var x = 0; x < input; x++) {
+                row += "<th><input type='number' id='matrix" + (y * input + x) + "' value=1></th>";
+            }
+            var tr = document.createElement("tr");
+            tr.innerHTML = row;
+            matrix.appendChild(tr);
+        }
+        document.getElementById("custom").style.display = "block";
+        document.getElementsByClassName("close")[1].addEventListener("click", function () {
+            document.getElementById("custom").style.display = "none";
+        });
+        document.getElementById("btnCustom").addEventListener("click", function () {
+            var custom = new Array(input * input);
+            for (var y = 0; y < input; y++) {
+                for (var x = 0; x < input; x++) {
+                    custom[y * input + x] = +document.getElementById("matrix" + (y * input + x)).value;
+                }
+            }
+            document.getElementById("custom").style.display = "none";
+            bmp.kernel(input, input, custom);
+            bmp.customFilter();
+            bmp.drawOnCanvas(canvas);
+        });
     });
 });

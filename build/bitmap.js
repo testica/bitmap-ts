@@ -641,7 +641,12 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             console.log(this._bitmap.current);
         };
         Bitmap.prototype.kernel = function (width, height, customKernel) {
-            this._filter.setKernel(width, height);
+            if (customKernel) {
+                this._filter.setKernel(width, height, customKernel);
+            }
+            else {
+                this._filter.setKernel(width, height);
+            }
         };
         Bitmap.prototype.blur = function (type) {
             if (type === "box") {
@@ -658,6 +663,9 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             else if (type === "sobel") {
                 this._bitmap.current.data = this._filter.edge(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             }
+        };
+        Bitmap.prototype.customFilter = function () {
+            this._bitmap.current.data = this._filter.custom(this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
         };
         Bitmap.prototype.drawProperties = function (properties) {
             properties[0].innerHTML = this._bitmap.infoHeader.width;
