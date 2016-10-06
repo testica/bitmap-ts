@@ -122,10 +122,12 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         var scaleHeight = +document.getElementById("scaleHeight").value;
         if (document.getElementsByName("algorithm")[0].checked) {
             bmp.scale(scaleWidth, scaleHeight, "neighbor");
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas);
         }
         else {
             bmp.scale(scaleWidth, scaleHeight, "interpolation");
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas);
         }
     });
@@ -138,24 +140,28 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
         var input = +document.getElementById("inputKernel").value;
         bmp.kernel(input, input);
         bmp.blur("box");
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("gaussBlur").addEventListener("click", function () {
         var input = +document.getElementById("inputKernel").value;
         bmp.kernel(input, input);
         bmp.blur("gauss");
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("prewittEdge").addEventListener("click", function () {
         var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("prewitt");
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("sobelEdge").addEventListener("click", function () {
         var input = +document.getElementById("inputKernel").value;
         bmp.kernel(3, 3);
         bmp.edge("sobel");
+        bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
         bmp.drawOnCanvas(canvas);
     });
     document.getElementById("customFilter").addEventListener("click", function () {
@@ -185,15 +191,20 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             document.getElementById("custom").style.display = "none";
             bmp.kernel(input, input, custom);
             bmp.customFilter();
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas);
         });
     });
     document.getElementById("undo").addEventListener("click", function () {
-        if (bmp.undo())
+        if (bmp.undo()) {
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas, true);
+        }
     });
     document.getElementById("redo").addEventListener("click", function () {
-        if (bmp.redo())
+        if (bmp.redo()) {
+            bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
             bmp.drawOnCanvas(canvas, true);
+        }
     });
 });

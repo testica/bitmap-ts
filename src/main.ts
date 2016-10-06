@@ -153,10 +153,12 @@ document.getElementById("scaleBtn").addEventListener("click", () => {
   if ((<HTMLInputElement> document.getElementsByName("algorithm")[0]).checked) {
     // neighbor algorithm
     bmp.scale(scaleWidth, scaleHeight, "neighbor");
+    bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
     bmp.drawOnCanvas(canvas);
   } else {
     // interpolation algorithm
     bmp.scale(scaleWidth, scaleHeight, "interpolation");
+    bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
     bmp.drawOnCanvas(canvas);
   }
 });
@@ -175,6 +177,7 @@ document.getElementById("boxBlur").addEventListener("click", () => {
 
   bmp.kernel(input, input);
   bmp.blur("box");
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
 
@@ -184,6 +187,7 @@ document.getElementById("gaussBlur").addEventListener("click", () => {
 
   bmp.kernel(input, input);
   bmp.blur("gauss");
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
 
@@ -193,6 +197,7 @@ document.getElementById("prewittEdge").addEventListener("click", () => {
 
   bmp.kernel(3, 3);
   bmp.edge("prewitt");
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
 
@@ -202,6 +207,7 @@ document.getElementById("sobelEdge").addEventListener("click", () => {
 
   bmp.kernel(3, 3);
   bmp.edge("sobel");
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });
 
@@ -237,18 +243,23 @@ document.getElementById("customFilter").addEventListener("click", () => {
     document.getElementById("custom").style.display = "none";
     bmp.kernel(input, input, custom);
     bmp.customFilter();
+    bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
     bmp.drawOnCanvas(canvas);
   });
 });
 
 // undo
 document.getElementById("undo").addEventListener("click", () => {
-  if (bmp.undo())
+  if (bmp.undo()) {
+    bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
     bmp.drawOnCanvas(canvas, true);
+  }
 });
 
 // redo
 document.getElementById("redo").addEventListener("click", () => {
-  if (bmp.redo())
+  if (bmp.redo()) {
+    bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
     bmp.drawOnCanvas(canvas, true);
+  }
 });

@@ -779,6 +779,8 @@ export class Bitmap {
   }
 
   public drawHistogram(canvas_r: HTMLCanvasElement, canvas_g: HTMLCanvasElement, canvas_b: HTMLCanvasElement, canvas_avg: HTMLCanvasElement) {
+    this._histogram = new Histogram();
+    this._histogram.fillAll(this._bitmap.current.data);
     if (!this._grayScale) {
       canvas_avg.style.display = "none";
       canvas_r.style.display = "block";

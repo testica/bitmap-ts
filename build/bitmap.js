@@ -691,6 +691,8 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             properties[3].innerHTML = (this._bitmap.header.size / (1024 * 1024));
         };
         Bitmap.prototype.drawHistogram = function (canvas_r, canvas_g, canvas_b, canvas_avg) {
+            this._histogram = new histogram_1.Histogram();
+            this._histogram.fillAll(this._bitmap.current.data);
             if (!this._grayScale) {
                 canvas_avg.style.display = "none";
                 canvas_r.style.display = "block";
