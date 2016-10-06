@@ -240,3 +240,15 @@ document.getElementById("customFilter").addEventListener("click", () => {
     bmp.drawOnCanvas(canvas);
   });
 });
+
+// undo
+document.getElementById("undo").addEventListener("click", () => {
+  if (bmp.undo())
+    bmp.drawOnCanvas(canvas, true);
+});
+
+// redo
+document.getElementById("redo").addEventListener("click", () => {
+  if (bmp.redo())
+    bmp.drawOnCanvas(canvas, true);
+});

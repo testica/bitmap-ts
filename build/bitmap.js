@@ -15,6 +15,8 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._file = file;
             this._transform = new transform_1.Transform();
             this._filter = new filter_1.Filter();
+            this._undo = new Array();
+            this._redo = new Array();
         }
         Bitmap.prototype.read = function (callback) {
             var _this = this;
@@ -638,7 +640,6 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._bitmap.current.data = this._transform.rotate(this._rotateAngle, owidth, oheight, dx, dy, this._bitmap.defaultData, this._bitmap.infoHeader.width, this._bitmap.infoHeader.height);
             this._bitmap.current.width = owidth;
             this._bitmap.current.height = oheight;
-            console.log(this._bitmap.current);
         };
         Bitmap.prototype.kernel = function (width, height, customKernel) {
             if (customKernel) {
@@ -667,6 +668,22 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
         Bitmap.prototype.customFilter = function () {
             this._bitmap.current.data = this._filter.custom(this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
         };
+        Bitmap.prototype.undo = function () {
+            if (this._undo.length > 1) {
+                this._redo.push(this._undo.pop());
+                this._bitmap.current = this._undo.pop();
+                return true;
+            }
+            return false;
+        };
+        Bitmap.prototype.redo = function () {
+            if (this._redo.length > 0) {
+                var data = this._redo.pop();
+                this._bitmap.current = { data: new Uint8ClampedArray(data.data), width: data.width, height: data.height };
+                return true;
+            }
+            return false;
+        };
         Bitmap.prototype.drawProperties = function (properties) {
             properties[0].innerHTML = this._bitmap.infoHeader.width;
             properties[1].innerHTML = this._bitmap.infoHeader.height;
@@ -691,7 +708,11 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                 this._histogram.draw_avg(canvas_avg);
             }
         };
-        Bitmap.prototype.drawOnCanvas = function (canvas) {
+        Bitmap.prototype.drawOnCanvas = function (canvas, undo_redo) {
+            this._undo.push({ data: this._bitmap.current.data.slice(0), width: this._bitmap.current.width, height: this._bitmap.current.height });
+            if (!undo_redo) {
+                this._redo = [];
+            }
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
             canvas.style.display = "block";
