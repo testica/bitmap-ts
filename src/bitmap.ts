@@ -23,6 +23,8 @@ export class Bitmap {
   private _rotateAngle = 0;
   private _dataView: DataView;
   private _filter: Filter;
+  private _undo: {data: Uint8ClampedArray, width: number, height: number}[];
+  private _redo: {data: Uint8ClampedArray, width: number, height: number}[];
 
   constructor(file: File) {
     this._histogram = new Histogram();
@@ -30,6 +32,8 @@ export class Bitmap {
     this._file = file;
     this._transform = new Transform();
     this._filter = new Filter();
+    this._undo = new Array<{data: Uint8ClampedArray, width: number, height: number}>();
+    this._redo = new Array<{data: Uint8ClampedArray, width: number, height: number}>();
   }
 
   public read(callback: any) {
@@ -715,7 +719,6 @@ export class Bitmap {
     this._bitmap.current.data = this._transform.rotate(this._rotateAngle , owidth , oheight , dx , dy , this._bitmap.defaultData, this._bitmap.infoHeader.width, this._bitmap.infoHeader.height);
     this._bitmap.current.width = owidth;
     this._bitmap.current.height = oheight;
-    console.log(this._bitmap.current);
   }
 
   // set kernel
@@ -750,6 +753,24 @@ export class Bitmap {
     this._bitmap.current.data = this._filter.custom(this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
   }
 
+  public undo(): boolean {
+    if (this._undo.length > 1 ) {
+      this._redo.push(this._undo.pop());
+      this._bitmap.current = this._undo.pop();
+      return true;
+    }
+    return false;
+  }
+
+
+  public redo(): boolean {
+    if (this._redo.length > 0 ) {
+      let data: any = this._redo.pop();
+      this._bitmap.current = {data: new Uint8ClampedArray(data.data), width: data.width, height: data.height};
+      return true;
+    }
+    return false;
+  }
   public drawProperties(properties: [HTMLElement, HTMLElement, HTMLElement, HTMLElement]) {
     properties[0].innerHTML = this._bitmap.infoHeader.width;
     properties[1].innerHTML = this._bitmap.infoHeader.height;
@@ -776,8 +797,13 @@ export class Bitmap {
 
   }
 
-  public drawOnCanvas(canvas: HTMLCanvasElement) {
+  public drawOnCanvas(canvas: HTMLCanvasElement, undo_redo?: boolean) {
       /* scale and center image*/
+      /* save status */
+      this._undo.push({data: this._bitmap.current.data.slice(0), width: this._bitmap.current.width, height: this._bitmap.current.height });
+      if (!undo_redo) {
+        this._redo = [];
+      }
       let width: number = this._bitmap.current.width;
       let height: number = this._bitmap.current.height;
       canvas.style.display = "block";

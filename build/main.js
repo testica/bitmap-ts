@@ -188,4 +188,12 @@ define(["require", "exports", "./bitmap"], function (require, exports, bitmap_1)
             bmp.drawOnCanvas(canvas);
         });
     });
+    document.getElementById("undo").addEventListener("click", function () {
+        if (bmp.undo())
+            bmp.drawOnCanvas(canvas, true);
+    });
+    document.getElementById("redo").addEventListener("click", function () {
+        if (bmp.redo())
+            bmp.drawOnCanvas(canvas, true);
+    });
 });
