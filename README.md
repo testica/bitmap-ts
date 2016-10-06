@@ -1,4 +1,4 @@
-# bitmap2-ts
+# bitmap3-ts
 Library built in [Typescript](https://www.typescriptlang.org/) to load/handle a bitmap file.
 Support 1, 2, 4, 8, 16(no tested) and 24 bpp.
 The following functions are available:
@@ -21,6 +21,12 @@ The following functions are available:
 - scale(width, height, 'interpolation|neighbor')
 - drawOnCanvasWithZoom (canvas, zoomValue, 'interpolation|neighbor')
 - rotate(angle)
+- kernel(width, height, customKernel?)
+- blur('box|gauss')
+- edge('prewitt|sobel')
+- customFilter()
+- undo() : boolean
+- redo() : boolean
 
 ### How to use
 I prepared a code to interact with library, you only need to clone the repository, and open `index.html` in **src/views/**, using a modern browser.
@@ -73,7 +79,7 @@ FileSaver is required, it allows to write a DataView in Blob.
 <script src="../../lib/FileSaver.min.js"></script>
 ```
 ### Demo
-Visit [the github repository page](https://testica.github.io/bitmap2-ts/) to see a demo.
+Visit [the github repository page](https://testica.github.io/bitmap3-ts/) to see a demo.
 
 ----
 **Leonardo Testa & Carlos Abreu**
