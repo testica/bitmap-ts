@@ -211,6 +211,16 @@ document.getElementById("sobelEdge").addEventListener("click", () => {
   bmp.drawOnCanvas(canvas);
 });
 
+// outline
+document.getElementById("l1").addEventListener("click", () => {
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
+
+  bmp.kernel(3, 3);
+  bmp.outline();
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+  bmp.drawOnCanvas(canvas);
+});
+
 // custom filter
 document.getElementById("customFilter").addEventListener("click", () => {
 

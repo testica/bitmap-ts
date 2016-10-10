@@ -178,6 +178,35 @@ export class Filter {
     return data;
   }
 
+  // OUTLINE FILTER
+  public outline(type: number, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
+    let data: any = new Uint8ClampedArray(width * height * 4);
+    let kernel:number[] = new Array<number>(9);
+    kernel = [0,1,0,1,-4,1,0,1,0];
+    for (let y: number = 0; y < height; y++) {
+      for (let x: number = 0; x < width; x++) {
+        let location: number = y * width * 4 + x * 4;
+        let neighbors: RGB [] = this.getNeighbors(image, width, height, [x, y]);
+        // do multiplication!
+        let total: RGB = new RGB();
+        for (let i: number = 0; i < this.kernel.width * this.kernel.height; i++) {
+          total.r += kernel[i] * neighbors[i].r;
+          total.g += kernel[i] * neighbors[i].g;
+          total.b += kernel[i] * neighbors[i].b;
+        }
+        total.r = this.truncate(total.r);
+        total.g = this.truncate(total.g);
+        total.b = this.truncate(total.b);
+
+        data[location] = total.r;
+        data[location + 1] = total.g;
+        data[location + 2] = total.b;
+        data[location + 3] = 0xFF;
+      }
+    }
+    return data;
+  }
+
   public custom(image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
     let data: any = new Uint8ClampedArray(width * height * 4);
     for (let y: number = 0; y < height; y++) {
