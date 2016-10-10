@@ -175,7 +175,7 @@ define(["require", "exports"], function (require, exports) {
         Filter.prototype.outline = function (type, image, width, height) {
             var data = new Uint8ClampedArray(width * height * 4);
             var kernel = new Array(9);
-            kernel = [0, 1, 0, 1, -4, 1, 0, 1, 0];
+            kernel = [1, 1, 1, 1, -8, 1, 1, 1, 1];
             for (var y = 0; y < height; y++) {
                 for (var x = 0; x < width; x++) {
                     var location_5 = y * width * 4 + x * 4;

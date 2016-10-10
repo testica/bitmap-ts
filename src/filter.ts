@@ -182,7 +182,7 @@ export class Filter {
   public outline(type: number, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
     let data: any = new Uint8ClampedArray(width * height * 4);
     let kernel:number[] = new Array<number>(9);
-    kernel = [0,1,0,1,-4,1,0,1,0];
+    kernel = [1,1,1,1,-8,1,1,1,1];
     for (let y: number = 0; y < height; y++) {
       for (let x: number = 0; x < width; x++) {
         let location: number = y * width * 4 + x * 4;
