@@ -179,10 +179,14 @@ export class Filter {
   }
 
   // OUTLINE FILTER
-  public outline(type: number, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
+  public outline(identity: boolean, image: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
     let data: any = new Uint8ClampedArray(width * height * 4);
-    let kernel:number[] = new Array<number>(9);
-    kernel = [1,1,1,1,-8,1,1,1,1];
+    let kernel: number[] = new Array<number>(9);
+    if (identity)
+      kernel = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
+    else
+      kernel = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
+
     for (let y: number = 0; y < height; y++) {
       for (let x: number = 0; x < width; x++) {
         let location: number = y * width * 4 + x * 4;

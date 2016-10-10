@@ -24,6 +24,7 @@ The following functions are available:
 - kernel(width, height, customKernel?)
 - blur('box|gauss')
 - edge('prewitt|sobel')
+- outline(boolean)
 - customFilter()
 - undo() : boolean
 - redo() : boolean

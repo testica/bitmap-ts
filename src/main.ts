@@ -216,7 +216,17 @@ document.getElementById("l1").addEventListener("click", () => {
   let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
 
   bmp.kernel(3, 3);
-  bmp.outline();
+  bmp.outline(false);
+  bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
+  bmp.drawOnCanvas(canvas);
+});
+
+// outline with identity
+document.getElementById("l2").addEventListener("click", () => {
+  let input: number = +(<HTMLInputElement>document.getElementById("inputKernel")).value;
+
+  bmp.kernel(3, 3);
+  bmp.outline(true);
   bmp.drawHistogram(histogram_r, histogram_g, histogram_b, histogram_avg);
   bmp.drawOnCanvas(canvas);
 });

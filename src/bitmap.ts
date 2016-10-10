@@ -749,9 +749,8 @@ export class Bitmap {
     }
   }
 
-  public outline()
-  {
-    this._bitmap.current.data = this._filter.outline(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);    
+  public outline(identity: boolean) {
+    this._bitmap.current.data = this._filter.outline(identity, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
   }
 
   public customFilter() {
