@@ -23,6 +23,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             var reader = new FileReader();
             reader.onload = function (e) {
                 var arrayBuffer = reader.result;
+                // this.bl = new Blob([new DataView(arrayBuffer)], {type: "application/octet-stream"});
                 _this.decodeHeader(arrayBuffer);
                 _this.decodeHeaderInfo(arrayBuffer);
                 _this.decodePalette(arrayBuffer);
@@ -39,8 +40,10 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             callback(new Blob([this._dataView.buffer], { type: "application/octet-stream" }));
         };
         Bitmap.prototype.encodeHeader = function () {
+            // export image on 24 bpp
             var bitsPerPixel = 24;
             var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
+            // add header + infoHeader length
             size += 54;
             var xlen = (this._bitmap.current.width * 3);
             var mode = xlen % 4;
@@ -55,6 +58,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._dataView.setInt32(10, 54, true);
         };
         Bitmap.prototype.encodeInfoHeader = function () {
+            // export image on 24 bpp
             var bitsPerPixel = 24;
             var size = ((this._bitmap.current.height * this._bitmap.current.width) * (bitsPerPixel / 8));
             var xlen = (this._bitmap.current.width * 3);
@@ -76,6 +80,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._dataView.setInt16(preOffset + 36, 0, true);
         };
         Bitmap.prototype.encodeImageData = function () {
+            // XXX: only works with 24 bpp images by moment.
             this.enconde24bit();
         };
         Bitmap.prototype.enconde24bit = function () {
@@ -106,6 +111,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
         };
         Bitmap.prototype.decodeHeader = function (buffer) {
             var header;
+            // Header (14 bytes)
             header = new DataView(buffer, 0, 14);
             this._bitmap.header = {};
             this._bitmap.header.type = header.getUint16(0, true);
@@ -119,6 +125,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
         };
         Bitmap.prototype.decodeHeaderInfo = function (buffer) {
             var infoHeader;
+            // Header (40 bytes)
             infoHeader = new DataView(buffer, 14, 40);
             this._bitmap.infoHeader = {};
             this._bitmap.infoHeader.size = infoHeader.getUint32(0, true);
@@ -135,12 +142,15 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
         };
         Bitmap.prototype.decodePalette = function (buffer) {
             var colors = 0;
+            // Check if has palette
             if (this._bitmap.infoHeader.bitsPerPixel <= 8) {
+                // has palette
                 this._grayScale = true;
                 if ((colors = this._bitmap.infoHeader.numberColors) === 0) {
                     colors = Math.pow(2, this._bitmap.infoHeader.bitsPerPixel);
                     this._bitmap.infoHeader.numberColors = colors;
                 }
+                // PALETTE STORAGE
                 var palette = new DataView(buffer, this._bitmap.infoHeader.size + 14, colors * 4);
                 var offset = 0;
                 this._bitmap.palette = [];
@@ -157,6 +167,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             }
         };
         Bitmap.prototype.decodeImageData = function (buffer) {
+            // Pixel storage
             this._bitmap.rowSize = Math.floor((this._bitmap.infoHeader.bitsPerPixel * this._bitmap.infoHeader.width + 31) / 32) * 4;
             this._bitmap.pixelArraySize = this._bitmap.rowSize * Math.abs(this._bitmap.infoHeader.height);
             this._bitmap.pixels = new Uint8Array(buffer, this._bitmap.header.offset);
@@ -175,6 +186,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                     data = this.decodeBit8();
                     break;
                 case 16:
+                    // no tested
                     data = this.decodeBit16();
                     break;
                 case 24:
@@ -270,7 +282,10 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                 for (var x = 0; x < xlen; x++) {
                     var b = bmpdata[pos++];
                     var location_3 = y * width * 4 + x * 2 * 4;
+                    // Split 8 bits
+                    // extract left 4-bits
                     var before = b >> 4;
+                    // extract right 4-bits
                     var after = b & 0x0F;
                     var rgb = palette[before];
                     data[location_3] = rgb.r;
@@ -525,6 +540,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
         Bitmap.prototype.equalization = function () {
             if (!this._grayScale)
                 this.rgb2gray();
+            // he were go!
             var output = [];
             var input = [];
             var totalPixels = this._bitmap.current.width * this._bitmap.current.height;
@@ -614,6 +630,8 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._bitmap.current.height = oheight;
         };
         Bitmap.prototype.rotate = function (angle) {
+            // Calcular el nuevo width y height
+            // Calcular el desplazamiento
             this._rotateAngle += angle;
             var iwidth = this._bitmap.infoHeader.width;
             var iheight = this._bitmap.infoHeader.height;
@@ -621,13 +639,13 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             var seno = Math.sin(this._rotateAngle);
             var x1, x2, x3, x4, y1, y2, y3, y4;
             x1 = 0;
-            y1 = 0;
+            y1 = 0; // (0,0)
             x2 = Math.floor((iwidth - 1) * coseno);
-            y2 = Math.floor(-(iwidth - 1) * seno);
+            y2 = Math.floor(-(iwidth - 1) * seno); // (iwidth-1,0)
             x3 = Math.floor((iheight - 1) * seno);
-            y3 = Math.floor((iheight - 1) * coseno);
+            y3 = Math.floor((iheight - 1) * coseno); // (0,iheight-1)
             x4 = Math.floor((iwidth - 1) * coseno + (iheight - 1) * seno);
-            y4 = Math.floor(-(iwidth - 1) * seno + (iheight - 1) * coseno);
+            y4 = Math.floor(-(iwidth - 1) * seno + (iheight - 1) * coseno); // (iwidht-1,iheight-1)
             var minX, maxX, minY, maxY, dx, dy;
             minX = Math.min(x1, x2, x3, x4);
             maxX = Math.max(x1, x2, x3, x4);
@@ -641,6 +659,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             this._bitmap.current.width = owidth;
             this._bitmap.current.height = oheight;
         };
+        // set kernel
         Bitmap.prototype.kernel = function (width, height, customKernel) {
             if (customKernel) {
                 this._filter.setKernel(width, height, customKernel);
@@ -664,6 +683,9 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             else if (type === "sobel") {
                 this._bitmap.current.data = this._filter.edge(1, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
             }
+        };
+        Bitmap.prototype.outline = function () {
+            this._bitmap.current.data = this._filter.outline(0, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
         };
         Bitmap.prototype.customFilter = function () {
             this._bitmap.current.data = this._filter.custom(this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
@@ -711,6 +733,8 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             }
         };
         Bitmap.prototype.drawOnCanvas = function (canvas, undo_redo) {
+            /* scale and center image*/
+            /* save status */
             this._undo.push({ data: this._bitmap.current.data.slice(0), width: this._bitmap.current.width, height: this._bitmap.current.height });
             if (!undo_redo) {
                 this._redo = [];
@@ -738,6 +762,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
             if (algorithm === "interpolation")
                 this._transform.setInterpolation();
             imageZoomed = this._transform.scale(this._bitmap.current.width * zoom, this._bitmap.current.height * zoom, this._bitmap.current.data, this._bitmap.current.width, this._bitmap.current.height);
+            // crop center
             var cropWidth = [0, 0];
             var cropHeight = [0, 0];
             cropWidth[0] = Math.floor(this._bitmap.current.width * zoom / 2) - Math.floor(this._bitmap.current.width / 2);
@@ -755,6 +780,7 @@ define(["require", "exports", "./histogram", "./transform", "./filter"], functio
                     imageCropped[pos++] = 0xFF;
                 }
             }
+            /* drawing !*/
             var width = this._bitmap.current.width;
             var height = this._bitmap.current.height;
             canvas.style.display = "block";
