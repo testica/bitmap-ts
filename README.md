@@ -1,4 +1,4 @@
-# bitmap3-ts
+# bitmap-ts
 Library built in [Typescript](https://www.typescriptlang.org/) to load/handle a bitmap file.
 Support 1, 2, 4, 8, 16(no tested) and 24 bpp.
 The following functions are available:
